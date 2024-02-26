@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/ori/my_ackermann/install/serial/include/**",
+        "/home/ori/my_ackermann/install/mocap_msgs/include/**",
+        "/home/ori/my_ackermann/install/gazebo_ros2_control/include/**",
+        "/home/ori/my_ackermann/install/diffdrive_arduino/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/ori/my_ackermann/src/gazebo_ros2_control/gazebo_ros2_control/include/**",
+        "/home/ori/my_ackermann/src/serial/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

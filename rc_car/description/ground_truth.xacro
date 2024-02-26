@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <gazebo>
+        <plugin name="libgazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+            <ros>
+                <namespace>p3d</namespace>
+                <remapping>odom:=odom</remapping>
+            </ros>
+            <frame_name>odom</frame_name>
+            <body_name>base_link</body_name>
+            <update_rate>100.0</update_rate>
+            <gaussian_noise>0.0</gaussian_noise>
+        </plugin>
+    </gazebo>
+
+</robot>

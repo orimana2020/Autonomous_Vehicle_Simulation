@@ -1,0 +1,14 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/ori/my_ackermann/install/rc_car/local/lib/python3.10/dist-packages",
+        "/home/ori/my_ackermann/install/mocap_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/ori/my_ackermann/install/rc_car/local/lib/python3.10/dist-packages",
+        "/home/ori/my_ackermann/install/mocap_msgs/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

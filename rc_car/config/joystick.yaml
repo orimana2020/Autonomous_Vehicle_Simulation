@@ -1,0 +1,42 @@
+joy_node:
+  ros__parameters:
+    device_id: 0
+    deadzone: 0.05
+    autorepeat_rate: 20.0
+
+
+teleop_node:
+  ros__parameters:
+    max_linear_velocity: 2.0
+    max_angular_velocity: 1.0
+    
+
+# teleop_node:
+#   ros__parameters:
+#     axis_angular.pitch: -1
+#     axis_angular.roll: -1
+#     axis_angular.yaw: 0
+#     axis_linear.x: 1
+#     axis_linear.y: -1
+#     axis_linear.z: -1
+#     # qos_overrides./parameter_events.publisher.depth: 10
+#     # qos_overrides./parameter_events.publisher.durability: volatile
+#     # qos_overrides./parameter_events.publisher.history: keep_last
+#     # qos_overrides./parameter_events.publisher.reliability: reliable
+#     scale_angular.pitch: 0.0
+#     scale_angular.roll: 0.0
+#     scale_angular.yaw: 5.0
+#     scale_angular_turbo.pitch: 0.0
+#     scale_angular_turbo.roll: 0.0
+#     scale_angular_turbo.yaw: 0.0
+#     scale_linear.x: 2.0
+#     scale_linear.y: 0.0
+#     scale_linear.z: 0.0
+#     scale_linear_turbo.x: 1.0
+#     scale_linear_turbo.y: 0.0
+#     scale_linear_turbo.z: 0.0
+#     # use_sim_time: true
+
+#     enable_button: 6
+#     enable_turbo_button: 7
+#     require_enable_button: true

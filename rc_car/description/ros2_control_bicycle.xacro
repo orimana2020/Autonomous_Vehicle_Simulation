@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- this file contains the hardware interface for ROS2_CONTROL -->
+    <!-- to expose the interfaces to resourse manager (in the controller manager) -->
+
+    <xacro:property name="steering_upper_limit" value="0.7" />
+    <xacro:property name="steering_lower_limit" value="-0.7" />
+    
+    <xacro:unless value="$(arg sim_mode)"> 
+        <ros2_control name="RealRobot" type="system">
+            <hardware>
+                <!-- this pluging tells the program how to talk interface -->
+                <!-- how many ticks the encoder should count such that the output wheel completes full round -->
+                <!-- 20 counts per endcoder rev(for A+B) * 15.3 gear ratio-->
+                <plugin>diffdrive_arduino/DiffDriveArduinoHardware</plugin> 
+                <param name="rear_wheel_name">back_central_wheel_joint</param>
+                <param name="front_wheel_name">front_central_steer_joint</param>
+                <param name="loop_rate">30</param>
+                <param name="device">/dev/ttyACM0</param>
+                <param name="baud_rate">57600</param>
+                <param name="timeout_ms">1000</param>
+                <param name="enc_counts_per_rev">306</param> 
+            </hardware>
+            <joint name="back_central_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+            
+            <joint name="front_central_steer_joint">
+                <command_interface name="position">
+                    <!-- <param name="min">"${steering_lower_limit}"</param>
+                    <param name="max">"${steering_upper_limit}"</param> -->
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+        </ros2_control>
+    </xacro:unless> 
+
+    <xacro:if value="$(arg sim_mode)">
+        <ros2_control name="GazeboSystem" type="system">
+            <hardware>
+                <!-- this pluging tells the program how to talk to the simulation -->
+                <plugin>gazebo_ros2_control/GazeboSystem</plugin> 
+            </hardware>
+            <joint name="back_central_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position" />
+                <state_interface name="velocity" />
+            </joint>
+            
+            <joint name="front_central_steer_joint">
+                <command_interface name="position">
+                    <param name="min">"${steering_lower_limit}"</param>
+                    <param name="max">"${steering_upper_limit}"</param>
+                </command_interface>
+                <state_interface name="position" />
+            </joint>
+        </ros2_control>
+    </xacro:if>
+
+
+
+
+    <gazebo>
+        <!-- this gazebo pugin telles gazebo to use ros2_control -->
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+            <parameters>$(find rc_car)/config/bicycle_steering_controller.yaml</parameters>
+            <parameters>$(find rc_car)/config/gaz_ros2_ctl_use_sim.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+</robot>
