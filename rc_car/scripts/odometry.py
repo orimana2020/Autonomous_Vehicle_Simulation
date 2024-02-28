@@ -15,7 +15,6 @@ class Odom(object):
         waypoints_x = []
         waypoints_y = []
         waypoints_theta = []
-        print()
         waypoints_x.append(self.x)
         waypoints_y.append(self.y)
         waypoints_theta.append(self.theta)
@@ -28,24 +27,44 @@ class Odom(object):
             waypoints_x.append(self.x)
             waypoints_y.append(self.y)
             waypoints_theta.append(self.theta)
+        self.x = waypoints_x[-1]
+        self.y = waypoints_y[-1]
+        self.theta = waypoints_theta[-1]
         return [waypoints_x, waypoints_y, waypoints_theta]
 
-odom = Odom()
+
+# fig = plt.figure()
+# ax = fig.add_subplot()
+# odom = Odom()
+# velocity = np.random.uniform(2.0)
+# steering = np.random.uniform(-np.pi/6, np.pi/6)
+# time = np.random.uniform(0.5,2)
+# print(f'velocity {velocity}, steering {steering}, time {time}')
+# waypoints = odom.random_control(velocity=velocity, steering=steering, time=time)
+# ax.scatter(waypoints[0], waypoints[1])
+# ax.set_aspect('equal', 'box')
+
+# plt.show()
 
 
 fig = plt.figure()
 ax = fig.add_subplot()
 odom = Odom()
-velocity = np.random.uniform(2.0)
-steering = np.random.uniform(-np.pi/6, np.pi/6)
-time = np.random.uniform(0.5,2)
+velocity = 1
+steering = 0.01
+time = 1
 print(f'velocity {velocity}, steering {steering}, time {time}')
-waypoints = odom.random_control(velocity=velocity, steering=steering, time=time)
-ax.scatter(waypoints[0], waypoints[1])
+x_coords = []
+y_coords = []
+for _ in range(30):
+    velocity = np.random.uniform(2.0)
+    steering = np.random.uniform(-np.pi/6, np.pi/6)
+    time = np.random.uniform(0.5,2)
+    waypoints = odom.random_control(velocity=velocity, steering=steering, time=time)
+    ax.scatter(waypoints[0], waypoints[1])
 ax.set_aspect('equal', 'box')
 
 plt.show()
-
 
 
 
