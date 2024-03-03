@@ -56,6 +56,7 @@ install(PROGRAMS
   scripts/PID_wall_following.py
   scripts/follow_the_gap.py
   scripts/inverse_twist.py
+  scripts/path_planning.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
