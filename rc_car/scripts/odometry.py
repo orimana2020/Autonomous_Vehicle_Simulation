@@ -56,7 +56,7 @@ time = 1
 print(f'velocity {velocity}, steering {steering}, time {time}')
 x_coords = []
 y_coords = []
-for _ in range(30):
+for _ in range(3):
     velocity = np.random.uniform(2.0)
     steering = np.random.uniform(-np.pi/6, np.pi/6)
     time = np.random.uniform(0.5,2)

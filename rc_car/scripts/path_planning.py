@@ -88,7 +88,7 @@ class Path_Planning(Node):
         for i in range(0, self.map_width_x * self.map_height_y, self.map_width_x):
             self.map.append(self.map_data_row[i:i+self.map_width_x])
         self.map = np.array(self.map)
-        print(self.map)
+        np.save('maze_1', self.map)
     
 
     def meter_to_pixel(self, x_meter, y_meter):
