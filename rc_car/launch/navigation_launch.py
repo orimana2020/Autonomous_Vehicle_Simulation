@@ -86,6 +86,7 @@ def generate_launch_description():
         default_value=os.path.join(bringup_dir, 'config', 'nav2_params.yaml'),
         description='Full path to the ROS2 parameters file to use for all launched nodes')
 
+  
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart', default_value='true',
         description='Automatically startup the nav2 stack')
@@ -209,7 +210,7 @@ def generate_launch_description():
                 remappings=remappings),
             ComposableNode(
                 package='nav2_planner',
-                plugin='nav2_planner::PlannerServer',
+                plugin= 'nav2_planner::PlannerServer',
                 name='planner_server',
                 parameters=[configured_params],
                 remappings=remappings),
