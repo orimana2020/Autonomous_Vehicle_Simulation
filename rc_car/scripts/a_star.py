@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import heapq
-from scipy import interpolate
 
 
 class A_Star(object):
@@ -35,7 +34,11 @@ class A_Star(object):
             path.append(current)
             current = came_from[current]
         path.append(start)
-        return path[::-1]
+        path = path[::-1]
+        reverse_xy = []
+        for x,y in path:
+            reverse_xy.append((y,x))
+        return reverse_xy
 
     def get_neighbors(self, current, closed_list):
         '''
@@ -60,6 +63,8 @@ class A_Star(object):
         
 
     def find_path(self, start, goal):
+        start = (start[1], start[0])
+        goal = (goal[1], goal[0])
         open_list = [(self.h(start, goal), start)]
         gscore = dict()
         came_from = dict()
@@ -83,110 +88,53 @@ class A_Star(object):
                     heapq.heappush(open_list, (gscore[neighbor]+self.h(neighbor, goal), neighbor) )
         print('No Path Found')
         return None
+    
+
+class CSpace(object):
+    def __init__(self, resolution, width,height, origin_x, origin_y):
+        self.resolution = resolution
+        self.width = width
+        self.height = height
+        self.origin_x = origin_x
+        self.origin_y = origin_y
+    
+    def meter2pixel(self, x,y):
+        return max(int((x -self.origin_x)/self.resolution), 0) ,max(int((y -self.origin_y)/self.resolution), 0)
+
+    def pixel2meter(self, i, j):
+        return (i*self.resolution + self.origin_x), (j*self.resolution + self.origin_y)
+
+    
 
 
 
+
+resolution=0.05000000074505806
+width=612
+height=177
+origin_x=-4.73 
+origin_y=-5.66
+converter = CSpace(resolution, width, height, origin_x, origin_y)
 
 map_ = np.array(np.load('maze_1.npy'), dtype=int)
+astar = A_Star(map_, inflation=int(0.35/resolution))
+start=converter.meter2pixel(0.0,0.0)
+goal=(430,25)
+path_index = astar.find_path(start, goal)
 
-astar = A_Star(map_, inflation=5)
 
-
-# fig = plt.figure()
-# ax = fig.add_subplot()
-# map_ = astar.inflated_map
-# map_[0:20, 0:20] = 100
-# for i in range(astar.rows):
-#     print(i)
-    # for j in range(astar.cols):
-    #     if astar.inflated_map[i][j] != 0:
-    #         ax.scatter(j,i, c='black', s=120)
-    #     else:
-    #         ax.scatter(j,i,c='grey',s=80)
-
-start=(78, 110)
-goal=(24, 414)
-path = astar.find_path(start, goal)
-if path is not None:
-    for vertix in path:
-        map_[vertix[0], vertix[1]] = 80
-x,y = [], []
-for idx, vertix in enumerate(path):
-    if idx % 10 ==0:
-        x.append(vertix[0])
-        y.append(vertix[1])
-
-# tck_s = splrep(np.array(x), np.array(y), s=2)
-# scipy.interpolate.splint(x,y,tck_s)
-# out = []
-# for n in range(len(x)):
-#     out.append(scipy.interpolate.splint(0, x[n], tck_s))
 plt.imshow(astar.inflated_map, origin="lower")
 plt.axis('equal')
+for x,y in path_index:
+    plt.scatter(x,y)
+
+# x_m, y_m = 0,0
+# origin_car_pixel = converter.meter2pixel(x_m,y_m)
+# print(origin_car_pixel)
+# original_cal_meter = converter.pixel2meter(origin_car_pixel[0], origin_car_pixel[1])
+# print(original_cal_meter)
+plt.scatter(start[0] , start[1])
+plt.scatter(goal[0] , goal[1])
+
 plt.show()
 
-
-
-# f = interpolate.interp1d(x, y, fill_value="extrapolate", axis=0)
-
-# ynew = f(x)   # use interpolation function returned by `interp1d`
-# plt.plot(x, y, 'o', x, ynew, '-')
-# plt.show()
-
-# look_ahead_distance = 5
-# WB = 0.35
-        
-# def pure_pursuit_steer_control(state, trajectory):
-#     '''
-#     Generally speaking we are given a trajectory of points in world coordinates. 
-#     We also know the center point of the car in world coordinates.
-#       We can measure velocity and the yaw of the car as simplified with the bicycle model.
-#     '''
-#     # Find the look ahead index from the trajectory
-#     ind = trajectory.search_target_index(state)
-    
-#     # index normalization making sure we don't overshoot the goal.
-#     if ind < len(trajectory.cx):
-#         tx = trajectory.cx[ind]
-#         ty = trajectory.cy[ind]
-#     else:  # toward goal
-#         tx = trajectory.cx[-1]
-#         ty = trajectory.cy[-1]
-#         ind = len(trajectory.cx) - 1
-    
-#     # Calculate the slope of look ahead distance line which would be alpha.
-#     # If the car was heading along the velocity vector then that would be it but the 
-#     # car has a yaw from the heading vector and hence we need to subtract this
-#     # from slooe to get actual alpha
-#     alpha = np.arctan2(ty - state.rear_y, tx - state.rear_x) - state.yaw
-
-#     # steering angle = invtan(2Lsin(alpha)/Ld)
-#     # as established steering control law for pure pursuit controller
-#     delta = np.arctan2(2.0 * WB * np.sin(alpha) / look_ahead_distance(state.v), 1.0)
-
-#     return delta, ind
-
-
-# def search_target_index(self, state):
-#     '''
-#     The function search_target_index first finds the nearest point from the rear axle on the
-#       trajectory and then starting from that point calculates the index of the point on trajectory
-#         which is look ahead distance away.
-#       As stated earlier look ahead distance varies as a function of the velocity.
-#     '''
-
-#     def closest_index_on_trajectory():
-#         dx = self.cx - state.rear_x
-#         dy = self.cy - state.rear_y
-#         return np.argmin(np.hypot(dx, dy))
-
-#     def look_ahead_idx_from(closest_index):
-#         target_index = closest_index
-#         while look_ahead_distance(state.v) > \
-#                 state.distance_from_rear_axle(self.cx[target_index], self.cy[target_index]):
-#             if (target_index + 1) >= len(self.cx):
-#                 break  # not exceed goal
-#             target_index += 1
-#         return target_index
-
-#     return look_ahead_idx_from(closest_index_on_trajectory())

@@ -57,6 +57,7 @@ install(PROGRAMS
   scripts/follow_the_gap.py
   scripts/inverse_twist.py
   scripts/path_planning.py
+  scripts/get_map_client.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
