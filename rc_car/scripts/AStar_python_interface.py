@@ -91,10 +91,8 @@ class A_Star(object):
     
 
 class CSpace(object):
-    def __init__(self, resolution, width,height, origin_x, origin_y):
+    def __init__(self, resolution, origin_x, origin_y):
         self.resolution = resolution
-        self.width = width
-        self.height = height
         self.origin_x = origin_x
         self.origin_y = origin_y
     
@@ -104,37 +102,48 @@ class CSpace(object):
     def pixel2meter(self, i, j):
         return (i*self.resolution + self.origin_x), (j*self.resolution + self.origin_y)
 
+    def pathindex2pathmeter(self, path_idnex):
+        path_meter = []
+        for coords_index in path_idnex:
+            coords_meter = self.pixel2meter(coords_index[0], coords_index[1])
+            path_meter.append(coords_meter)
+        return path_meter
+
+
+
+
+def main():
+    resolution=0.05000000074505806
+    width=612
+    height=177
+    origin_x=-4.73 
+    origin_y=-5.66
+    converter = CSpace(resolution, origin_x, origin_y)
+
+    # map_ = np.array(np.load('maze_1.npy'), dtype=int)
+    map_ = np.array(np.load('maze_test.npy'), dtype=int)
     
+    astar = A_Star(map_, inflation=int(0.35/resolution))
+    start=converter.meter2pixel(0.0,0.0)
+    goal = converter.meter2pixel(6.22, -4.5)
+    print(start)
+    print(goal)
+    path_index = astar.find_path(start, goal)
+    np.save('path_index', np.array(converter.pathindex2pathmeter(path_index)))
 
 
+    plt.imshow(astar.inflated_map, origin="lower")
+    plt.axis('equal')
+    for x,y in path_index:
+        plt.scatter(x,y)
+
+    plt.scatter(start[0] , start[1])
+    plt.scatter(goal[0] , goal[1])
+
+    plt.show()
 
 
-resolution=0.05000000074505806
-width=612
-height=177
-origin_x=-4.73 
-origin_y=-5.66
-converter = CSpace(resolution, width, height, origin_x, origin_y)
+if __name__ == "__main__":
+    main()
 
-map_ = np.array(np.load('maze_1.npy'), dtype=int)
-astar = A_Star(map_, inflation=int(0.35/resolution))
-start=converter.meter2pixel(0.0,0.0)
-goal=(430,25)
-path_index = astar.find_path(start, goal)
-
-
-plt.imshow(astar.inflated_map, origin="lower")
-plt.axis('equal')
-for x,y in path_index:
-    plt.scatter(x,y)
-
-# x_m, y_m = 0,0
-# origin_car_pixel = converter.meter2pixel(x_m,y_m)
-# print(origin_car_pixel)
-# original_cal_meter = converter.pixel2meter(origin_car_pixel[0], origin_car_pixel[1])
-# print(original_cal_meter)
-plt.scatter(start[0] , start[1])
-plt.scatter(goal[0] , goal[1])
-
-plt.show()
 

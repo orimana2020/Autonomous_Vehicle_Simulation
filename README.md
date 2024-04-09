@@ -33,7 +33,6 @@ ros2 launch rc_car launch_sim_bicycle.launch.py
 
 TERMINAL 2 :
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/main.rviz --ros-args -p use_sim_time:=true
-
 -or when use localization-
 source install/setup.bash
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true

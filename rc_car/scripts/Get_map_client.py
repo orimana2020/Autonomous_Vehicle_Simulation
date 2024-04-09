@@ -4,6 +4,7 @@ import sys
 from nav_msgs.srv import GetMap
 import rclpy
 from rclpy.node import Node
+import numpy as np
 
 class GetMap_ClientAsync(Node):
     """
@@ -26,12 +27,23 @@ def main():
     rclpy.init()
     get_map_client = GetMap_ClientAsync()
     response = get_map_client.send_request()
-    origin = response.info.origin
-    resolution = response.info.resolution
-    map_data = response.info.data
-    width = response.info.width
-    height = response.info.height
-    print(map_data)
+    map_origin = response.map.info.origin.position
+    print(f'origin {map_origin}')
+    map_resolution = response.map.info.resolution
+    print(f'resolution {map_resolution}')
+    map_width = response.map.info.width
+    print(f'width {map_width}')
+    map_height = response.map.info.height
+    print(f'heigth {map_height}')
+    map_origin_x = response.map.info.origin.position.x
+    print(f'origin_x {map_origin_x}')
+    map_origin_y = response.map.info.origin.position.y
+    print(f'origin_y {map_origin_y}')
+    map_data = np.array(response.map.data)
+    print(f'data {map_data}')
+    map_data = map_data.reshape((map_height, map_width))
+    print(f'data {map_data}')
+    np.save('maze_test', map_data)
     get_map_client.destroy_node()
     rclpy.shutdown()
 

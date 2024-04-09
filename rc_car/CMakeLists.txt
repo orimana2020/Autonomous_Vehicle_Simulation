@@ -21,10 +21,10 @@ find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(geometry_msgs REQUIRED)
-
+find_package(interfaces REQUIRED)
 # add_executable(mocap_node rc_car/print_mocap.py)
 # ament_target_dependencies(rclpy geometry_msgs mocap_msgs)
-
+# ament_target_dependencies(rclcpp interfaces)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -56,8 +56,11 @@ install(PROGRAMS
   scripts/PID_wall_following.py
   scripts/follow_the_gap.py
   scripts/inverse_twist.py
-  scripts/path_planning.py
-  scripts/get_map_client.py
+  # scripts/path_planning.py
+  scripts/Get_map_client.py
+  scripts/PathPlanning_service.py
+  scripts/AStar_python_interface.py
+  scripts/PathPlanning_client.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
