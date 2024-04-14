@@ -3,7 +3,7 @@ import math
 import numpy as np
 import sys
 import pathlib
-import  cubic_spline_planner
+# import  rc_car.scripts.utils.cubic_spline_planner as cubic_spline_planner
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent))
 
 
