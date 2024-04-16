@@ -123,13 +123,14 @@ def main():
     # map_ = np.array(np.load('maze_1.npy'), dtype=int)
     map_ = np.array(np.load('maze_test.npy'), dtype=int)
     
-    astar = A_Star(map_, inflation=int(0.35/resolution))
+    astar = A_Star(map_, inflation=int(0.6/resolution))
     start=converter.meter2pixel(0.0,0.0)
-    goal = converter.meter2pixel(6.22, -4.5)
+    goal = converter.meter2pixel(10.0, 0.0)
     print(start)
     print(goal)
     path_index = astar.find_path(start, goal)
-    np.save('path_index', np.array(converter.pathindex2pathmeter(path_index)))
+    path_meter = np.array(converter.pathindex2pathmeter(path_index))
+    np.save('path_meter2', path_meter)
 
 
     plt.imshow(astar.inflated_map, origin="lower")

@@ -61,6 +61,9 @@ install(PROGRAMS
   scripts/PathPlanning_service.py
   scripts/AStar_python_interface.py
   scripts/PathPlanning_client.py
+  scripts/Path_Tracking.py
+  scripts/PurePursuit_python_interface.py
+  scripts/utils.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

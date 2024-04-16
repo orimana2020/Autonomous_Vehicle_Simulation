@@ -97,11 +97,11 @@ def main():
     from py_simulator import State, States, Simulator
     #  hyper-parameters
     k = 0.1  # look forward gain
-    Lfc = 0.5  # [m] look-ahead distance
-    Kp = 1.0  # speed proportional gain
+    Lfc = 0.7  # [m] look-ahead distance
+    Kp = 0.0  # speed proportional gain
     dt = 0.1  # [s] time tick
     WB = 0.35 
-    target_speed = 2  # [m/s]
+    target_speed = 1.0  # [m/s]
     T = 100.0  # max simulation time
     MAX_STEER = np.deg2rad(45.0)  # maximum steering angle [rad]
     MAX_DSTEER = np.deg2rad(90.0)  # maximum steering speed [rad/s]
@@ -112,7 +112,8 @@ def main():
     """
     load path and convert it to trajectory, smooth curve, 
     """
-    path = np.load('path_meter_test.npy')
+    # path = np.load('path_meter_test.npy')
+    path = np.load('path_meter.npy')
     trajectory = Trajectory(dl=0.5, path =path, TARGET_SPEED=target_speed)
     # initial state
     state = State(x=trajectory.cx[0], y=trajectory.cy[0], yaw=trajectory.cyaw[0], v=0.0)
