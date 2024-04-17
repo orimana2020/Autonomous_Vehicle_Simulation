@@ -67,6 +67,9 @@ class State:
         self.predelta = 0.0
     
     def update(self, x, y, yaw):
+        self.x = x
+        self.y = y
+        self.yaw = yaw
         self.rear_x = x - ((self.WB / 2) * math.cos(yaw))
         self.rear_y = y - ((self.WB / 2) * math.sin(yaw))
 

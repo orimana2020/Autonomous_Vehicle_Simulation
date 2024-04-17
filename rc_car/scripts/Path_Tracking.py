@@ -25,15 +25,15 @@ class PathTracking(Node):
         #TF
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.timer = self.create_timer(0.05, self.tf_timer)
+        self.timer = self.create_timer(timer_period_sec=0.05, callback=self.tf_timer)
 
         #  hyper-parameters
         k = 0.1  # look forward gain
-        Lfc = 0.5  # [m] look-ahead distance
+        Lfc = 1.2  # [m] look-ahead distance
         Kp = 1.0  # speed proportional gain
         self.TargetSpeed = 0.5  # [m/s]
-        MAX_STEER = np.deg2rad(35.0)  # maximum steering angle [rad]
-        MAX_DSTEER = np.deg2rad(40.0)  # maximum steering speed [rad/s]
+        MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
+        MAX_DSTEER = np.deg2rad(90.0)  # maximum steering speed [rad/s]
         MAX_SPEED = 3.0 # maximum speed [m/s]
         MIN_SPEED = 0.1  # minimum speed [m/s]
         MAX_ACCEL = 1.0  # maximum accel [m/ss]
@@ -42,7 +42,7 @@ class PathTracking(Node):
         self.max_radial_velocity_rear_wheel = MAX_SPEED / self.wheel_radius
         self.pure_persuit_frequency = 2
 
-        path = np.load('path_meter2.npy')
+        path = np.load('path_meter.npy')
         self.trajectory = Trajectory(dl=0.5, path =path, TARGET_SPEED=self.TargetSpeed)
         self.state = State(WB=self.WB, x=self.trajectory.cx[0], y=self.trajectory.cy[0], yaw=self.trajectory.cyaw[0], v=0.0)
         self.lastIndex = len(self.trajectory.cx) - 1
@@ -57,20 +57,22 @@ class PathTracking(Node):
     def tf_timer(self):
         try:
             transform = self.tf_buffer.lookup_transform(target_frame='map',source_frame='base_link', time=rclpy.time.Time())                
-            print(transform)
-            self.other_callback(transform)
+            self.pp_callback(transform)
         except TransformException as ex:
             self.get_logger().info(f'Could not transform ')
             return
     
-    def other_callback(self, pose: TransformStamped):
+    def pp_callback(self, pose: TransformStamped):
         self.update_pose(pose)
+        print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
+    
         delta_t = self.update_time()
         if self.target_ind < self.lastIndex :#and (delta_t > 1 / self.pure_persuit_frequency):
             self.state.v = 0.5
             delta, self.target_ind = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
-            self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
+            # self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
+            self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed= 8.0)
             self.prev_time = self.get_clock().now()
     
     def update_pose(self, pose: TransformStamped):

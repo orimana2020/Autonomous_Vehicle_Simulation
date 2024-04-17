@@ -97,8 +97,8 @@ def main():
     from py_simulator import State, States, Simulator
     #  hyper-parameters
     k = 0.1  # look forward gain
-    Lfc = 0.7  # [m] look-ahead distance
-    Kp = 0.0  # speed proportional gain
+    Lfc = 1.0  # [m] look-ahead distance
+    Kp = 1.0  # speed proportional gain
     dt = 0.1  # [s] time tick
     WB = 0.35 
     target_speed = 1.0  # [m/s]

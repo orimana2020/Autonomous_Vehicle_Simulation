@@ -125,7 +125,7 @@ def main():
     
     astar = A_Star(map_, inflation=int(0.6/resolution))
     start=converter.meter2pixel(0.0,0.0)
-    goal = converter.meter2pixel(10.0, 0.0)
+    goal = converter.meter2pixel(6.22, -4.22)
     print(start)
     print(goal)
     path_index = astar.find_path(start, goal)

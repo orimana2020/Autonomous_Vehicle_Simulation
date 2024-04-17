@@ -2,7 +2,8 @@ import numpy as np
 import heapq
 
 path = np.load('path_meter_test.npy', allow_pickle=True)
-print(path)
+x = 1.56565656
+print(f'x = {x:.2f}')
 # path = np.load('start_index.npy', allow_pickle=True)
 # print(path)
 # path = np.load('goal_index.npy', allow_pickle=True)
