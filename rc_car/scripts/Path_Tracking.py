@@ -31,7 +31,7 @@ class PathTracking(Node):
         k = 0.1  # look forward gain
         Lfc = 1.2  # [m] look-ahead distance
         Kp = 1.0  # speed proportional gain
-        self.TargetSpeed = 0.5  # [m/s]
+        self.TargetSpeed = 1.0  # [m/s]
         MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
         MAX_DSTEER = np.deg2rad(150.0)  # maximum steering speed [rad/s]
         MAX_SPEED = 3.0 # maximum speed [m/s]
@@ -68,11 +68,11 @@ class PathTracking(Node):
     
         delta_t = self.update_time()
         if self.target_ind < self.lastIndex :#and (delta_t > 1 / self.pure_persuit_frequency):
-            self.state.v = 0.5
+            # self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed)
             delta, self.target_ind = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
             # self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
-            self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed= 8.0)
+            self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = 10.0)
             self.prev_time = self.get_clock().now()
     
     def update_pose(self, pose: TransformStamped):
@@ -101,22 +101,6 @@ class PathTracking(Node):
         cmd_vel.angular.z = cmd_vel.linear.x * np.tan(steering_angle) / self.WB
         self.control_command_publisher.publish(cmd_vel)
 
-      # def amcl_pose_callback(self, pose: PoseWithCovarianceStamped):
-    #     self.get_logger().info('ok')
-    #     self.update_state(pose)
-    #     delta_t = self.update_time()
-    #     if self.target_ind < self.lastIndex :#and (delta_t > 1 / self.pure_persuit_frequency):
-    #         self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed, self.state.v)
-    #         delta, self.target_ind = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
-    #         self.state.predelta = delta
-    #         self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
-    #         self.prev_time = self.get_clock().now()
-
-    # def update_state(self, pose: PoseWithCovarianceStamped):
-    #     x = self.state.x = pose.pose.pose.position.x 
-    #     y = self.state.y = pose.pose.pose.position.y 
-    #     _, _, yaw = euler_from_quaternion(pose.pose.pose.orientation) 
-    #     self.state.update(x, y, yaw)
 
 
 
