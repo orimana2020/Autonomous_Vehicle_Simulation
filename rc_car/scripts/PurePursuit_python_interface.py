@@ -100,11 +100,11 @@ def main():
     Lfc = 1.0  # [m] look-ahead distance
     Kp = 1.0  # speed proportional gain
     dt = 0.1  # [s] time tick
-    WB = 0.35 
+    WB = 0.335 
     target_speed = 1.0  # [m/s]
     T = 100.0  # max simulation time
-    MAX_STEER = np.deg2rad(45.0)  # maximum steering angle [rad]
-    MAX_DSTEER = np.deg2rad(90.0)  # maximum steering speed [rad/s]
+    MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
+    MAX_DSTEER = np.deg2rad(150.0)  # maximum steering speed [rad/s]
     MAX_SPEED = 10.0 / 3.6  # maximum speed [m/s]
     MIN_SPEED = 0.1  # minimum speed [m/s]
     MAX_ACCEL = 1.0  # maximum accel [m/ss]

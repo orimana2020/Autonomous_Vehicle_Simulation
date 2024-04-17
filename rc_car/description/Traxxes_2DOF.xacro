@@ -8,7 +8,7 @@
   <xacro:property name="wheel_radius" value="${$(arg wheel_diameter)/2}" />
   <xacro:property name="wheel_width" value="0.047" />
   <xacro:property name="wheel_friction" value="2.0" />
-  <xacro:property name="wheelbase" value="0.3429" />
+  <xacro:property name="wheelbase" value="0.335" />
   <xacro:property name="track_width" value="0.25" />
   <xacro:property name="chassis_width" value="0.18" />
   <xacro:property name="wheel_mass" value="0.1" />
@@ -19,9 +19,12 @@
   <xacro:property name="chassis_mass" value="${total_mass-4*wheel_mass}" />
 
   <!-- Steering params -->
-  <xacro:property name="steering_velocity" value="0.2" />
+  <!-- <xacro:property name="steering_velocity" value="0.2" />
   <xacro:property name="steering_upper_limit" value="0.6" /> 
-  <xacro:property name="steering_lower_limit" value="-0.6" />
+  <xacro:property name="steering_lower_limit" value="-0.6" /> -->
+  <xacro:property name="steering_velocity" value="2.16" />
+  <xacro:property name="steering_upper_limit" value="0.69" /> 
+  <xacro:property name="steering_lower_limit" value="-0.69" />
   <xacro:property name="steering_effort" value="1000.0" />
 
 
