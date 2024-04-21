@@ -31,22 +31,22 @@ class PathTracking(Node):
         k = 0.1  # look forward gain
         Lfc = 1.2  # [m] look-ahead distance
         Kp = 1.0  # speed proportional gain
-        self.TargetSpeed = 1.0  # [m/s]
-        MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
+        self.TargetSpeed = 3.0  # [m/s]
+        self.MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
         MAX_DSTEER = np.deg2rad(150.0)  # maximum steering speed [rad/s]
-        MAX_SPEED = 3.0 # maximum speed [m/s]
-        MIN_SPEED = 0.1  # minimum speed [m/s]
+        self.MAX_SPEED = 2.0 # maximum speed [m/s]
+        self.MIN_SPEED = 1.0  # minimum speed [m/s]
         MAX_ACCEL = 1.0  # maximum accel [m/ss]
         self.wheel_radius = 0.056
         self.WB = 0.335
-        self.max_radial_velocity_rear_wheel = MAX_SPEED / self.wheel_radius
+        self.max_radial_velocity_rear_wheel = self.MAX_SPEED / self.wheel_radius
         self.pure_persuit_frequency = 2
 
         path = np.load('path_meter.npy')
         self.trajectory = Trajectory(dl=0.5, path =path, TARGET_SPEED=self.TargetSpeed)
         self.state = State(WB=self.WB, x=self.trajectory.cx[0], y=self.trajectory.cy[0], yaw=self.trajectory.cyaw[0], v=0.0)
         self.lastIndex = len(self.trajectory.cx) - 1
-        self.pp = PurePersuit_Controller(self.trajectory.cx, self.trajectory.cy, k, Lfc, Kp, self.WB, MAX_ACCEL, MAX_SPEED, MIN_SPEED, MAX_STEER, MAX_DSTEER)
+        self.pp = PurePersuit_Controller(self.trajectory.cx, self.trajectory.cy, k, Lfc, Kp, self.WB, MAX_ACCEL, self.MAX_SPEED, self.MIN_SPEED, self.MAX_STEER, MAX_DSTEER)
         self.target_ind, _ = self.pp.search_target_index(self.state)
         self.control_command_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.prev_time = self.get_clock().now()
@@ -72,7 +72,8 @@ class PathTracking(Node):
             delta, self.target_ind = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
             # self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
-            self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = 10.0)
+            linear_velocity = self.get_linear_velocity(steering_angle=delta)
+            self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = linear_velocity / self.wheel_radius)
             self.prev_time = self.get_clock().now()
     
     def update_pose(self, pose: TransformStamped):
@@ -80,6 +81,9 @@ class PathTracking(Node):
         y = self.state.y = pose.transform.translation.y
         _, _, yaw = euler_from_quaternion(quaternion= pose.transform.rotation)
         self.state.update(x, y, yaw)
+    
+    def get_linear_velocity(self, steering_angle):
+        return self.MIN_SPEED + (self.MAX_SPEED -self.MIN_SPEED) * (self.MAX_STEER - abs(steering_angle)) / self.MAX_STEER
   
 
     def update_time(self):
