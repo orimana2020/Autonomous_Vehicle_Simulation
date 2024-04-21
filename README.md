@@ -50,12 +50,12 @@ map_file_name: /home/ori/dev_ws/my_map_serial
 map_start_at_dock: true
 
 need to copy the localizion_launch from slam_toolbox and rerun the simulation
-this is not the same localization_launch from Nav2 package(in this repo)
+this is not the same localization.launch from Nav2 package(in this repo)
 
 # localiztion
 TERMINAL 3 :
 source install/setup.bash
-ros2 launch rc_car localization_launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
+ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
 step 1: in rviz, manually write "map" in fixed frame
 step 2: change set initial position
 step 3: add map
@@ -71,8 +71,8 @@ step 2: topic: /global_costmap, color scheme: cost_map
 ----------------------------- bicycle simulation with mapped environment
 
 ros2 launch rc_car launch_sim_bicycle.launch.py 
-ros2 launch rc_car localization_launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
-ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/rviz_map_maze1.rviz --ros-args -p use_sim_time:=true
-
+ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
+ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true
+ros2 run rc_car Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true
 
 

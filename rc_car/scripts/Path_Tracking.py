@@ -5,7 +5,7 @@ from rclpy.node import Node
 from interfaces.srv import GetPath
 from AStar_python_interface import A_Star, CSpace
 import numpy as np
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import PoseStamped
 from nav_msgs.srv import GetMap
 from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
 from PurePursuit_python_interface import PurePersuit_Controller
@@ -14,13 +14,24 @@ from geometry_msgs.msg import Twist
 from tf2_ros.buffer import Buffer
 from tf2_ros import TransformException
 from tf2_ros.transform_listener import TransformListener
+from rclpy.parameter import Parameter
 
-
+from nav_msgs.msg import Path
 
 
 class PathTracking(Node):
     def __init__(self):
         super().__init__('Path_Tracking')
+        self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, True)])
+        self.declare_parameter('show_path', False )
+        show_path_param = self.get_parameter('show_path').get_parameter_value().bool_value
+        # new_custom_show_path_param = rclpy.parameter.Parameter(
+        #     'show_path',
+        #     rclpy.Parameter.Type.BOOL,
+        #     False
+        # )
+        # self.set_parameters([new_custom_show_path_param])
+                            
         
         #TF
         self.tf_buffer = Buffer()
@@ -42,8 +53,13 @@ class PathTracking(Node):
         self.max_radial_velocity_rear_wheel = self.MAX_SPEED / self.wheel_radius
         self.pure_persuit_frequency = 2
 
-        path = np.load('path_meter.npy')
-        self.trajectory = Trajectory(dl=0.5, path =path, TARGET_SPEED=self.TargetSpeed)
+        self.path = np.load('path_meter.npy')
+        
+        if show_path_param:
+            self.path_pulisher = self.create_publisher(Path, '/path', 1)
+            self.path_publisher_timer = self.create_timer(2.0, self.path_callback)
+
+        self.trajectory = Trajectory(dl=0.5, path =self.path, TARGET_SPEED=self.TargetSpeed)
         self.state = State(WB=self.WB, x=self.trajectory.cx[0], y=self.trajectory.cy[0], yaw=self.trajectory.cyaw[0], v=0.0)
         self.lastIndex = len(self.trajectory.cx) - 1
         self.pp = PurePersuit_Controller(self.trajectory.cx, self.trajectory.cy, k, Lfc, Kp, self.WB, MAX_ACCEL, self.MAX_SPEED, self.MIN_SPEED, self.MAX_STEER, MAX_DSTEER)
@@ -52,6 +68,26 @@ class PathTracking(Node):
         self.prev_time = self.get_clock().now()
         # self.amcl_sub = self.create_subscription(PoseWithCovarianceStamped,'/amcl_pose', self.amcl_pose_callback,10)
         # self.amcl_sub  
+    
+    def path_callback(self):
+        path = Path()
+        path.header.frame_id = 'map'
+        poses = []
+        for i,j in self.path:
+            pose = PoseStamped()
+            pose.header.frame_id = 'map'
+            pose.pose.position.x = i
+            pose.pose.position.y = j
+            pose.pose.position.z = 0.0
+            pose.pose.orientation.x = 0.0
+            pose.pose.orientation.y = 0.0
+            pose.pose.orientation.z = 0.0
+            pose.pose.orientation.w = 1.0
+            poses.append(pose)
+        path.poses = poses
+        self.path_pulisher.publish(path)
+            
+
 
     
     def tf_timer(self):
