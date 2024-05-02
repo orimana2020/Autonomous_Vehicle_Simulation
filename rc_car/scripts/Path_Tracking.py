@@ -42,7 +42,6 @@ class PathTracking(Node):
         MAX_ACCEL = 1.0  # maximum accel [m/ss]
         self.wheel_radius = 0.056
         self.WB = 0.335
-        self.max_radial_velocity_rear_wheel = self.MAX_SPEED / self.wheel_radius
         self.path = np.load('path_meter.npy')
 
         if show_path_param:
@@ -118,12 +117,9 @@ class PathTracking(Node):
         return delta_t
 
 
-    def publish_control_cmd(self, steering_angle, linear_speed=None, rear_wheel_angular_speed=None):
+    def publish_control_cmd(self, steering_angle, rear_wheel_angular_speed):
         cmd_vel = Twist()
-        if linear_speed is not None:
-            cmd_vel.linear.x = linear_speed
-        else:
-            cmd_vel.linear.x = rear_wheel_angular_speed * self.wheel_radius * np.cos(steering_angle) 
+        cmd_vel.linear.x = rear_wheel_angular_speed * self.wheel_radius * np.cos(steering_angle) 
         cmd_vel.linear.y = 0.0
         cmd_vel.linear.z = 0.0
         cmd_vel.angular.x = 0.0
