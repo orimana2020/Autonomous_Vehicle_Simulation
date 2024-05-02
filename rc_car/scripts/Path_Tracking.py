@@ -24,14 +24,7 @@ class PathTracking(Node):
         self.declare_parameter('show_marker', False )
         show_path_param = self.get_parameter('show_path').get_parameter_value().bool_value
         self.show_marker_param = self.get_parameter('show_marker').get_parameter_value().bool_value
-        # new_custom_show_path_param = rclpy.parameter.Parameter(
-        #     'show_path',
-        #     rclpy.Parameter.Type.BOOL,
-        #     False
-        # )
-        # self.set_parameters([new_custom_show_path_param])
-                            
-        
+
         #TF
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -50,8 +43,6 @@ class PathTracking(Node):
         self.wheel_radius = 0.056
         self.WB = 0.335
         self.max_radial_velocity_rear_wheel = self.MAX_SPEED / self.wheel_radius
-        self.pure_persuit_frequency = 2
-
         self.path = np.load('path_meter.npy')
 
         if show_path_param:
@@ -59,6 +50,7 @@ class PathTracking(Node):
             self.path_publisher_timer = self.create_timer(2.0, self.path_callback)
             self.marker_pulisher = self.create_publisher(Marker, '/marker', 1)
 
+        self.init_marker()
         self.trajectory = Trajectory(dl=0.5, path =self.path, TARGET_SPEED=self.TargetSpeed)
         self.state = State(WB=self.WB, x=self.trajectory.cx[0], y=self.trajectory.cy[0], yaw=self.trajectory.cyaw[0], v=0.0)
         self.lastIndex = len(self.trajectory.cx) - 1
@@ -66,6 +58,7 @@ class PathTracking(Node):
         self.target_ind, _ = self.pp.search_target_index(self.state)
         self.control_command_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.prev_time = self.get_clock().now()
+        
         
     
     def path_callback(self):
@@ -101,11 +94,10 @@ class PathTracking(Node):
         print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
     
         delta_t = self.update_time()
-        if self.target_ind < self.lastIndex :#and (delta_t > 1 / self.pure_persuit_frequency):
+        if self.target_ind < self.lastIndex :
             # self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed)
             delta, self.target_ind, self.tx, self.ty = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
-            # self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
             linear_velocity = self.get_linear_velocity(steering_angle=delta)
             self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = linear_velocity / self.wheel_radius)
             self.prev_time = self.get_clock().now()
@@ -141,9 +133,7 @@ class PathTracking(Node):
         if self.show_marker_param:
             self.publish_marker()
 
-
-
-    def publish_marker(self):
+    def init_marker(self):
         marker = Marker()
         marker.header.frame_id = 'map'
         marker.header.stamp = self.get_clock().now().to_msg()
@@ -151,15 +141,21 @@ class PathTracking(Node):
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
         marker.id = 0 
-        marker.pose.position.x = self.tx
-        marker.pose.position.y = self.ty
         marker.pose.position.z = 0.2
         marker.scale.x, marker.scale.y, marker.scale.z = 0.2,0.2,0.2
         marker.color.a = 1.0
         marker.color.r = 0.0
         marker.color.g = 1.0
         marker.color.b = 0.0
-        self.marker_pulisher.publish(marker)
+        self.marker = marker
+        
+
+    def publish_marker(self):
+        self.marker.pose.position.x = self.tx
+        self.marker.pose.position.y = self.ty
+        self.marker_pulisher.publish(self.marker)
+
+        
 
 def main(args=None):
     rclpy.init(args=args)
