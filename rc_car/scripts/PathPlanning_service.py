@@ -27,7 +27,7 @@ class PathPlanningService(Node):
         np.save('start_index', np.array(start_index))
         np.save('goal_index', np.array(goal_index))
         path_index = self.astar.find_path(start_index, goal_index)
-        np.save('path_meter_test', np.array(path_index))
+        np.save('path_meter', np.array(path_index))
         if path_index is not None:
             path_meter = self.converter.pathindex2pathmeter(path_index)
             path = []
@@ -56,13 +56,6 @@ class PathPlanningService(Node):
         self.map_origin_y = map_response.map.info.origin.position.y
         map_data = np.array(map_response.map.data)
         self.map_data = map_data.reshape((self.map_height, self.map_width))
-        # np.save('map_test_inv', self.map_data)
-        # np.save('map_res', self.map_resolution)
-        # np.save('height', self.map_height)
-        # np.save('widht', self.map_width)
-        # np.save('origin_x', self.map_origin_x)
-        # np.save('origin_y', self.map_origin_y)
-
 
 
 def main():

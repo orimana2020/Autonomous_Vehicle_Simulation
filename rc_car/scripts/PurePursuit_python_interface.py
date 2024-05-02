@@ -45,7 +45,7 @@ class PurePersuit_Controller(object):
             delta = self.MAX_STEER
         elif delta <= -self.MAX_STEER:
             delta = -self.MAX_STEER
-        return delta, ind
+        return delta, ind, tx, ty
     
     def proportional_control_acceleration(self, target_speed, current_speed, dt=0.2):
         acc = self.Kp * (target_speed - current_speed)
@@ -131,7 +131,7 @@ def main():
     simulator = Simulator(trajectory, state)
     while T >= time and lastIndex > target_ind:
         state.v = pp.proportional_control_acceleration(target_speed, state.v, dt)
-        delta, target_ind = pp.pure_pursuit_steer_control(state, trajectory, target_ind, dt)
+        delta, target_ind,_,_ = pp.pure_pursuit_steer_control(state, trajectory, target_ind, dt)
         state.predelta = delta
         simulator.update_state(state, delta)  # Control vehicle
         time += dt

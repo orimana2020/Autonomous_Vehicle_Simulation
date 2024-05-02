@@ -9,6 +9,7 @@ Panels:
         - /Map1
         - /Map1/Update Topic1
         - /Path1
+        - /Marker1
       Splitter Ratio: 0.5
     Tree Height: 543
   - Class: rviz_common/Selection
@@ -262,6 +263,7 @@ Visualization Manager:
         Grid: true
         LaserScan: true
         Map: true
+        Marker: true
         Path: true
         RobotModel: false
         TF: false
@@ -316,6 +318,19 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /path
       Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        basic: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /marker
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -362,7 +377,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 16.8759765625
+      Distance: 29.399818420410156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -398,5 +413,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1850
-  X: 2630
+  X: 1990
   Y: 27

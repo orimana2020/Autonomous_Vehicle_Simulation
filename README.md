@@ -61,6 +61,7 @@ step 2: change set initial position
 step 3: add map
 step 4: topic->durability policy->transient local
 
+# depricated Navigation - replaced with custom interface
 TERMINAL 4:
 source install/setup.bash
 ros2 launch rc_car navigation_launch.py use_sim_time:=true map_subscribe_transient_local:=true
@@ -73,6 +74,11 @@ step 2: topic: /global_costmap, color scheme: cost_map
 ros2 launch rc_car launch_sim_bicycle.launch.py 
 ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true
-ros2 run rc_car Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true
+# path planning
+ros2 run rc_car PathPlanning_service.py --ros-args -p use_sime_time:=true
+ros2 run rc_car PathPlanning_client.py 0 0 6.22 -4.5  --ros-args -p use_sime_time:=true
+# path tracking
+ros2 run rc_car Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true -p show_marker:=true
+
 
 

@@ -2,12 +2,9 @@
 
 import rclpy
 from rclpy.node import Node
-from interfaces.srv import GetPath
-from AStar_python_interface import A_Star, CSpace
 import numpy as np
 from geometry_msgs.msg import PoseStamped
-from nav_msgs.srv import GetMap
-from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
+from geometry_msgs.msg import  TransformStamped
 from PurePursuit_python_interface import PurePersuit_Controller
 from utils import euler_from_quaternion, Trajectory, State
 from geometry_msgs.msg import Twist
@@ -15,8 +12,8 @@ from tf2_ros.buffer import Buffer
 from tf2_ros import TransformException
 from tf2_ros.transform_listener import TransformListener
 from rclpy.parameter import Parameter
-
 from nav_msgs.msg import Path
+from visualization_msgs.msg import Marker
 
 
 class PathTracking(Node):
@@ -24,7 +21,9 @@ class PathTracking(Node):
         super().__init__('Path_Tracking')
         self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, True)])
         self.declare_parameter('show_path', False )
+        self.declare_parameter('show_marker', False )
         show_path_param = self.get_parameter('show_path').get_parameter_value().bool_value
+        self.show_marker_param = self.get_parameter('show_marker').get_parameter_value().bool_value
         # new_custom_show_path_param = rclpy.parameter.Parameter(
         #     'show_path',
         #     rclpy.Parameter.Type.BOOL,
@@ -54,10 +53,11 @@ class PathTracking(Node):
         self.pure_persuit_frequency = 2
 
         self.path = np.load('path_meter.npy')
-        
+
         if show_path_param:
             self.path_pulisher = self.create_publisher(Path, '/path', 1)
             self.path_publisher_timer = self.create_timer(2.0, self.path_callback)
+            self.marker_pulisher = self.create_publisher(Marker, '/marker', 1)
 
         self.trajectory = Trajectory(dl=0.5, path =self.path, TARGET_SPEED=self.TargetSpeed)
         self.state = State(WB=self.WB, x=self.trajectory.cx[0], y=self.trajectory.cy[0], yaw=self.trajectory.cyaw[0], v=0.0)
@@ -66,8 +66,7 @@ class PathTracking(Node):
         self.target_ind, _ = self.pp.search_target_index(self.state)
         self.control_command_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.prev_time = self.get_clock().now()
-        # self.amcl_sub = self.create_subscription(PoseWithCovarianceStamped,'/amcl_pose', self.amcl_pose_callback,10)
-        # self.amcl_sub  
+        
     
     def path_callback(self):
         path = Path()
@@ -86,7 +85,6 @@ class PathTracking(Node):
             poses.append(pose)
         path.poses = poses
         self.path_pulisher.publish(path)
-            
 
 
     
@@ -105,7 +103,7 @@ class PathTracking(Node):
         delta_t = self.update_time()
         if self.target_ind < self.lastIndex :#and (delta_t > 1 / self.pure_persuit_frequency):
             # self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed)
-            delta, self.target_ind = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
+            delta, self.target_ind, self.tx, self.ty = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
             # self.publish_control_cmd(steering_angle=delta, linear_speed = self.state.v)
             linear_velocity = self.get_linear_velocity(steering_angle=delta)
@@ -140,9 +138,28 @@ class PathTracking(Node):
         cmd_vel.angular.y = 0.0
         cmd_vel.angular.z = cmd_vel.linear.x * np.tan(steering_angle) / self.WB
         self.control_command_publisher.publish(cmd_vel)
+        if self.show_marker_param:
+            self.publish_marker()
 
 
 
+    def publish_marker(self):
+        marker = Marker()
+        marker.header.frame_id = 'map'
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = 'basic'
+        marker.type = Marker.SPHERE
+        marker.action = Marker.ADD
+        marker.id = 0 
+        marker.pose.position.x = self.tx
+        marker.pose.position.y = self.ty
+        marker.pose.position.z = 0.2
+        marker.scale.x, marker.scale.y, marker.scale.z = 0.2,0.2,0.2
+        marker.color.a = 1.0
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        self.marker_pulisher.publish(marker)
 
 def main(args=None):
     rclpy.init(args=args)
