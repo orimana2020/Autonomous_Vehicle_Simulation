@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import Tree, calc_configs_dist
+from utils import Tree, calc_configs_dist, Trajectory
 from AStar_python_interface import CSpace
 plt.ion()
 
@@ -74,7 +74,7 @@ class RRTSTAR(object):
                     path_found = True
                     self.p_bias = 0.0
                     path, path_cost = self.get_shortest_path(goal)
-                    
+
             if path_found and self.stop_on_goal:
                 return path , path_cost
             if path_found and not self.stop_on_goal:
@@ -159,12 +159,13 @@ class RRTSTAR(object):
         plt.imshow(self.map, origin="lower")
         plt.pause(0.01)
     
-    def draw_path(self, path):
+    def draw_path(self, path, trajectory:Trajectory):
         plt.gcf().canvas.mpl_connect(
             'key_release_event',
             lambda event: [exit(0) if event.key == 'escape' else None])
         for i in range(1, len(path)):
             plt.plot([path[i-1][0], path[i][0]], [path[i-1][1], path[i][1]], c='m')
+        plt.plot(trajectory.cx, trajectory.cy, "-r", label="course")
         plt.xlim([0, self.env_cols])
         plt.ylim([0, self.env_rows])
         plt.imshow(self.map, origin="lower")
@@ -223,10 +224,13 @@ def main():
     goal = np.array([goal[0], goal[1], 0], dtype=int)
     print(start)
     print(goal)
-    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=False, p_bias=0.05, show_animation=False)
+    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=True, p_bias=0.05, show_animation=False)
     # rrt_planner.draw_paths(22)
+    # path = np.load('path1.npy')
     path, cost = rrt_planner.find_path(start, goal)
-    rrt_planner.draw_path(path)
+    trajectory = Trajectory(dl=0.5, path = path, TARGET_SPEED=1.0)
+    
+    rrt_planner.draw_path(path, trajectory)
     print(path)
 
 
