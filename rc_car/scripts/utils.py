@@ -3,6 +3,7 @@
 import numpy as np
 import math
 import bisect
+import operator
 
 
 def euler_from_quaternion(quaternion):
@@ -507,66 +508,169 @@ def calc_spline_course(x, y, ds=0.1):
     return rx, ry, ryaw, rk, s
 
 
-# def main_1d():
-#     print("CubicSpline1D test")
-#     import matplotlib.pyplot as plt
-#     x = np.arange(5)
-#     y = [1.7, -6, 5, 6.5, 0.0]
-#     sp = CubicSpline1D(x, y)
-#     xi = np.linspace(0.0, 5.0)
+class Tree(object):
+    
+    def __init__(self):
+        self.vertices = dict()
+        self.edges = dict()
 
-#     plt.plot(x, y, "xb", label="Data points")
-#     plt.plot(xi, [sp.calc_position(x) for x in xi], "r",
-#              label="Cubic spline interpolation")
-#     plt.grid(True)
-#     plt.legend()
-#     plt.show()
+    def GetRootID(self):
+        '''
+        Returns the ID of the root in the tree.
+        '''
+        return 0
+
+    def GetNearestVertex(self, config):
+        '''
+        Returns the nearest state ID in the tree.
+        @param config Sampled configuration.
+        '''
+        dists = []
+        for _, v in self.vertices.items():
+            dists.append(calc_configs_dist(config, v.conf))
+
+        vid, _ = min(enumerate(dists), key=operator.itemgetter(1))
+
+        return vid, self.vertices[vid].conf
+            
+    def GetKNN(self, config, k):
+        '''
+        Return k-nearest neighbors
+        @param config Sampled configuration.
+        @param k Number of nearest neighbors to retrieve.
+        '''
+        dists = []
+        for _, v in self.vertices.items():
+            dists.append(calc_configs_dist(config, v.conf))
+
+        dists = np.array(dists)
+        knnIDs = np.argpartition(dists, k)[:k]
+        # knnDists = [dists[i] for i in knnIDs]
+
+        return knnIDs #, [self.vertices[vid] for vid in knnIDs]
+
+    def AddVertex(self, config):
+        '''
+        Add a state to the tree.
+        @param config Configuration to add to the tree.
+        '''
+        vid = len(self.vertices)
+        self.vertices[vid] = RRTVertex(conf=config)
+        return vid
+
+    def AddEdge(self, sid, eid, arc_cost=None):
+        '''
+        Adds an edge in the tree.
+        @param sid start state ID
+        @param eid end state ID
+        '''
+        self.edges[eid] = sid
+        if arc_cost is None:
+            edge_cost = calc_configs_dist(self.vertices[sid].conf, self.vertices[eid].conf)
+        else:
+            edge_cost = arc_cost
+        self.vertices[eid].set_cost(cost=self.vertices[sid].cost + edge_cost)
+
+    def getIndexForState(self, conf):
+        '''
+        Search for the vertex with the given configuration and return the index if exists
+        @param conf configuration to check if exists.
+        '''
+        valid_idxs = [v_idx for v_idx, v in self.vertices.items() if (v.conf[:2] == conf[:2]).all()]
+        if len(valid_idxs) > 1:
+            print('multiple goals')
+        if len(valid_idxs) > 0:
+            return valid_idxs[0]
+        return None
+
+    def isConfExists(self, conf):
+        '''
+        Check if the given configuration exists.
+        @param conf configuration to check if exists.
+        '''
+        conf_idx = self.getIndexForState(conf=conf)
+        if conf_idx is not None:
+            return True
+        return False
 
 
-# def main_2d():  # pragma: no cover
-#     print("CubicSpline1D 2D test")
-#     import matplotlib.pyplot as plt
-#     x = [-2.5, 0.0, 2.5, 5.0, 7.5, 3.0, -1.0]
-#     y = [0.7, -6, 5, 6.5, 0.0, 5.0, -2.0]
-#     ds = 0.1  # [m] distance of each interpolated points
+class RRTVertex(object):
+    def __init__(self, conf, cost=0):
+        self.conf = conf
+        self.cost = cost
 
-#     sp = CubicSpline2D(x, y)
-#     s = np.arange(0, sp.s[-1], ds)
+    def set_cost(self, cost):
+        self.cost = cost
 
-#     rx, ry, ryaw, rk = [], [], [], []
-#     for i_s in s:
-#         ix, iy = sp.calc_position(i_s)
-#         rx.append(ix)
-#         ry.append(iy)
-#         ryaw.append(sp.calc_yaw(i_s))
-#         rk.append(sp.calc_curvature(i_s))
+    def set_waypoints(self, waypoints):
+        self.waypoints = np.array(waypoints)
+    
+    def set_yaw(self, yaw):
+        self.conf[2] = yaw
 
-#     plt.subplots(1)
-#     plt.plot(x, y, "xb", label="Data points")
-#     plt.plot(rx, ry, "-r", label="Cubic spline path")
-#     plt.grid(True)
-#     plt.axis("equal")
-#     plt.xlabel("x[m]")
-#     plt.ylabel("y[m]")
-#     plt.legend()
-
-#     plt.subplots(1)
-#     plt.plot(s, [np.rad2deg(iyaw) for iyaw in ryaw], "-r", label="yaw")
-#     plt.grid(True)
-#     plt.legend()
-#     plt.xlabel("line length[m]")
-#     plt.ylabel("yaw angle[deg]")
-
-#     plt.subplots(1)
-#     plt.plot(s, rk, "-r", label="curvature")
-#     plt.grid(True)
-#     plt.legend()
-#     plt.xlabel("line length[m]")
-#     plt.ylabel("curvature [1/m]")
-
-#     plt.show()
+def calc_configs_dist(config1, config2):
+    return np.linalg.norm(config1[:2] - config2[:2], ord=2)
 
 
-# if __name__ == '__main__':
-#     # main_1d()
-#     main_2d()
+
+class Ackermann_ARC(object):
+    def __init__(self, wheelbase = 0.35, dt=0.03):
+        self.wheelbase = wheelbase
+        self.dt = dt
+
+    def get_arc(self,x_near, x_new ,velocity):
+        # print('in')
+        # print(f'xnew {x_new} xnear {x_near}')
+        Lf = ((x_new[0]-x_near[0])**2 + (x_new[1]-x_near[1])**2)**0.5
+        # print(f'lf {Lf}')
+        alpha = math.atan2(x_new[1] - x_near[1], x_new[0] - x_near[0]) - x_near[2]
+        # print(f'alpha {alpha}')
+        steering = math.atan2(2.0 * self.wheelbase * math.sin(alpha) / Lf, 1.0)
+        # print(f'steering {steering}')
+        theta_dot = velocity * np.tan(steering) / self.wheelbase
+        reach_goal= False
+        total_time = 0
+        x, y, yaw = x_near
+        yaw = self.fix_yaw_range(yaw)
+        waypoints = []
+        waypoints.append([x, y, yaw])
+        while not reach_goal:
+            total_time += self.dt
+            yaw += theta_dot * self.dt
+            yaw = self.fix_yaw_range(yaw)
+            x_dot = velocity * np.cos(yaw)
+            y_dot = velocity * np.sin(yaw)
+            x += x_dot * self.dt
+            y += y_dot * self.dt
+            waypoints.append([x, y, yaw])
+            dist2goal = ((x - x_new[0])**2 + (y - x_new[1])**2)**0.5
+            if dist2goal < 0.05:
+                reach_goal = True
+            # print('in loop')
+        length = 0.0
+        for idx in range(len(waypoints)-1):
+            length += np.linalg.norm(np.array(waypoints[idx][:2]) - np.array(waypoints[idx+1][:2]))
+        # print('out')
+        return np.array(waypoints), total_time, length, waypoints[-1][2]
+
+    def fix_yaw_range(self, yaw):
+        if yaw > np.pi*2:
+            yaw = yaw - np.pi*2
+        if yaw < np.pi*2:
+            yaw = yaw + np.pi*2
+        return yaw
+
+# import matplotlib.pyplot as plt
+# # random_x, random_y = [-1.5299999523162846, -0.009999915808439397] # random point on map
+# random_x, random_y = [-1.5299999523162846, -0.1999915808439397] # random point on map
+# closest_x, closest_y, closest_yaw =[-0.029999929964542815, -0.009999915808439397, 0.0] # closest point in graph
+# fig = plt.figure()
+# ax = fig.add_subplot()
+# odom = Ackermann_ARC()
+# velocity = np.random.uniform(2.0)
+# waypoints, arc_time, arc_length = odom.get_arc([closest_x, closest_y,closest_yaw], [random_x, random_y] ,velocity=velocity  )
+# ax.scatter(waypoints[:,0], waypoints[:,1])
+# ax.scatter([closest_x, random_x], [closest_y, random_y],c='red')
+# ax.set_aspect('equal', 'box')
+# plt.show()
+
