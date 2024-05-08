@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import heapq
+from utils import Trajectory
 
 
 class A_Star(object):
@@ -134,27 +135,29 @@ class CSpace(object):
 
 
 def main():
+    map_ = np.array(np.load('maze_test.npy'), dtype=int)
+    env_rows, env_cols = map_.shape
     resolution=0.05000000074505806
-    width=612
-    height=177
     origin_x=-4.73 
     origin_y=-5.66
-    converter = CSpace(resolution, origin_x, origin_y)
+    converter = CSpace(resolution, origin_x, origin_y,env_rows, env_cols )
 
     # map_ = np.array(np.load('maze_1.npy'), dtype=int)
     map_ = np.array(np.load('maze_test.npy'), dtype=int)
-    
+
     astar = A_Star(map_, inflation=int(0.6/resolution))
-    start=converter.meter2pixel(0.0,0.0)
-    goal = converter.meter2pixel(6.22, -4.22)
+    start=converter.meter2pixel([0.0,0.0])
+    goal = converter.meter2pixel([6.22, -4.22])
     print(start)
     print(goal)
     path_index = astar.find_path(start, goal)
+    path_index = path_index[::20]
+    trajectory = Trajectory(dl=0.5, path=path_index, TARGET_SPEED=1.0)
     path_meter = np.array(converter.pathindex2pathmeter(path_index))
     np.save('path_meter2', path_meter)
 
-
-    plt.imshow(astar.inflated_map, origin="lower")
+    plt.scatter(trajectory.cx, trajectory.cy, c= "r", s=10)
+    plt.imshow(map_, origin="lower")
     plt.axis('equal')
     for x,y in path_index:
         plt.scatter(x,y)

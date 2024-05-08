@@ -210,7 +210,6 @@ def main():
     map_original = np.array(np.load('maze_test.npy'), dtype=int)
     env_rows, env_cols = map_original.shape
     resolution=0.05000000074505806
-    
     origin_x=-4.73 
     origin_y=-5.66
     converter = CSpace(resolution, origin_x, origin_y,env_rows, env_cols )
