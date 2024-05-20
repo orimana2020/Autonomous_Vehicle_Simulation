@@ -15,21 +15,23 @@ class PathPlanningService(Node):
         self.calc_path_service = self.create_service(GetPath, '/calc_path', self.get_path_callback)
         self.get_map()
         self.astar = A_Star(self.map_data, inflation=int(0.35/self.map_resolution))
-        self.converter = CSpace(self.map_resolution, self.map_origin_x, self.map_origin_y)
+        self.converter = CSpace(self.map_resolution, self.map_origin_x, self.map_origin_y, self.map_rows, self.map_cols)
 
     def get_path_callback(self, request, response):
         response.path = self.get_path(request.start , request.goal)
         return response
 
     def get_path(self, start, goal):
-        start_index = self.converter.meter2pixel(start.x, start.y)
-        goal_index = self.converter.meter2pixel(goal.x, goal.y)
+        start_index = self.converter.meter2pixel([start.x, start.y])
+        goal_index = self.converter.meter2pixel([goal.x, goal.y])
         np.save('start_index', np.array(start_index))
         np.save('goal_index', np.array(goal_index))
+        print('start_AStar')
         path_index = self.astar.find_path(start_index, goal_index)
-        np.save('path_meter', np.array(path_index))
+        np.save('path_maze_index_sim', np.array(path_index))
         if path_index is not None:
             path_meter = self.converter.pathindex2pathmeter(path_index)
+            np.save('path_maze_meter_sim', path_meter)
             path = []
             for coord in path_meter:
                 point = Point()
@@ -56,6 +58,7 @@ class PathPlanningService(Node):
         self.map_origin_y = map_response.map.info.origin.position.y
         map_data = np.array(map_response.map.data)
         self.map_data = map_data.reshape((self.map_height, self.map_width))
+        self.map_rows, self.map_cols = self.map_data.shape
 
 
 def main():

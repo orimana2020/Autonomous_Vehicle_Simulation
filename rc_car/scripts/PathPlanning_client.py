@@ -14,7 +14,6 @@ class PathPlanning_Client(Node):
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.req = GetPath.Request()
-        # self.get_map()
 
     def send_request(self, start, goal):
         self.req.start = start
@@ -33,7 +32,7 @@ def main(args=None):
     goal = Point()
     goal.x = float(sys.argv[3])# 6.22
     goal.y = float(sys.argv[4])#-4.5
-    
+    print('sending_request')
     response = path_planning_client.send_request(start, goal)
     print(response.path)
     path_planning_client.destroy_node()

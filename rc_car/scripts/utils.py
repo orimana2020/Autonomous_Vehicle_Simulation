@@ -77,7 +77,7 @@ class State:
 
 
 class Trajectory(object):
-    def __init__(self,path ,dl=1.0, TARGET_SPEED=10.0 / 3.6 ):
+    def __init__(self, path ,dl=1.0, TARGET_SPEED=10.0 / 3.6 ):
         self.ax = []
         self.ay = []
         for coords in path:

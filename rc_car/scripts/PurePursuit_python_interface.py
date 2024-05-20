@@ -1,14 +1,12 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt
-
 from utils import Trajectory
-
+import car_consts
 
 
 
 class PurePersuit_Controller(object):
-    def __init__(self,cx, cy, k=0.1, Lfc = 0.5, Kp = 1.0, WB = 0.35, MAX_ACCEL=1.0, MAX_SPEED=3, MIN_SPEED=-3, MAX_STEER=np.deg2rad(40.0), MAX_DSTEER=np.deg2rad(90.0) ):
+    def __init__(self,cx, cy, k=0.1, Lfc = 0.5, Kp = 1.0, WB = 0.335, MAX_ACCEL=1.0, MAX_SPEED=3, MIN_SPEED=-3, MAX_STEER=np.deg2rad(27.0), MAX_DSTEER=np.deg2rad(150.0) ):
         self.k = k  # look forward gain
         self.Lfc = Lfc   # [m] look-ahead distance
         self.Kp = Kp  # speed proportional gain
@@ -94,26 +92,27 @@ class PurePersuit_Controller(object):
 
 
 def main():
+    import matplotlib.pyplot as plt
     from py_simulator import State, States, Simulator
     #  hyper-parameters
     k = 0.1  # look forward gain
     Lfc = 1.0  # [m] look-ahead distance
     Kp = 1.0  # speed proportional gain
     dt = 0.1  # [s] time tick
-    WB = 0.335 
+    WB = car_consts.wheelbase 
     target_speed = 1.0  # [m/s]
     T = 100.0  # max simulation time
-    MAX_STEER = np.deg2rad(40.0)  # maximum steering angle [rad]
-    MAX_DSTEER = np.deg2rad(150.0)  # maximum steering speed [rad/s]
-    MAX_SPEED = 10.0 / 3.6  # maximum speed [m/s]
-    MIN_SPEED = 0.1  # minimum speed [m/s]
+    MAX_STEER = car_consts.max_steering_angle_rad  # maximum steering angle [rad]
+    MAX_DSTEER = car_consts.max_dt_steering_angle  # maximum steering speed [rad/s]
+    MAX_SPEED = car_consts.max_linear_velocity  # maximum speed [m/s]
+    MIN_SPEED = car_consts.min_linear_velocity  # minimum speed [m/s]
     MAX_ACCEL = 1.0  # maximum accel [m/ss]
 
     """
     load path and convert it to trajectory, smooth curve, 
     """
     # path = np.load('path_meter_test.npy')
-    path = np.load('path_meter.npy')
+    path = np.load('path_race4.npy')
     trajectory = Trajectory(dl=0.5, path =path, TARGET_SPEED=target_speed)
     # initial state
     state = State(x=trajectory.cx[0], y=trajectory.cy[0], yaw=trajectory.cyaw[0], v=0.0)

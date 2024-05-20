@@ -33,7 +33,7 @@ diff_cont:
     enable_odom_tf: true
     use_stamped_vel: true 
 
-    wheelbase: 0.3429
+    wheelbase: 0.335
     front_wheel_radius: 0.056
     rear_wheel_radius: 0.056
     # front_wheel_track: 0.25

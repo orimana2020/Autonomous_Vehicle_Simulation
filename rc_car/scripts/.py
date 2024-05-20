@@ -14,7 +14,7 @@ from tf2_ros.transform_listener import TransformListener
 from rclpy.parameter import Parameter
 from nav_msgs.msg import Path
 from visualization_msgs.msg import Marker
-import car_consts
+
 
 class PathTracking(Node):
     def __init__(self):
@@ -34,16 +34,16 @@ class PathTracking(Node):
 
         #  hyper-parameters
         k = 0.1  # look forward gain
-        Lfc = 0.7  # [m] look-ahead distance
+        Lfc = 0.8  # [m] look-ahead distance
         Kp = 1.0  # speed proportional gain
-        self.TargetSpeed = 0.9  # [m/s]
-        self.MAX_STEER = car_consts.max_steering_angle_rad  # maximum steering angle [rad]
-        MAX_DSTEER = car_consts.max_dt_steering_angle  # maximum steering speed [rad/s]
-        self.MAX_SPEED = car_consts.max_linear_velocity # maximum speed [m/s]
-        self.MIN_SPEED = car_consts.min_linear_velocity  # minimum speed [m/s]
+        self.TargetSpeed = 1.0  # [m/s]
+        self.MAX_STEER = np.deg2rad(35.0)  # maximum steering angle [rad]
+        MAX_DSTEER = np.deg2rad(150.0)  # maximum steering speed [rad/s]
+        self.MAX_SPEED = 2.0 # maximum speed [m/s]
+        self.MIN_SPEED = 1.0  # minimum speed [m/s]
         MAX_ACCEL = 1.0  # maximum accel [m/ss]
-        self.wheel_radius = car_consts.wheel_radius
-        self.WB = car_consts.wheelbase
+        self.wheel_radius = 0.056
+        self.WB = 0.335
         self.path = np.load(path_name+'.npy')
 
         if show_path_param:
@@ -66,11 +66,11 @@ class PathTracking(Node):
         path = Path()
         path.header.frame_id = 'map'
         poses = []
-        for coords in range(len(self.path)):
+        for i,j,_ in self.path:
             pose = PoseStamped()
             pose.header.frame_id = 'map'
-            pose.pose.position.x = self.path[coords][0]
-            pose.pose.position.y = self.path[coords][1]
+            pose.pose.position.x = i
+            pose.pose.position.y = j
             pose.pose.position.z = 0.0
             pose.pose.orientation.x = 0.0
             pose.pose.orientation.y = 0.0
@@ -92,14 +92,15 @@ class PathTracking(Node):
     
     def pp_callback(self, pose: TransformStamped):
         self.update_pose(pose)
-        print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
+        # print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
+    
         delta_t = self.update_time()
         if self.target_ind < self.lastIndex :
             # self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed)
             delta, self.target_ind, self.tx, self.ty = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
             linear_velocity = self.get_linear_velocity(steering_angle=delta)
-            print(f'streering_angle : {np.rad2deg(delta)}, rear_wheel_speed: {linear_velocity / self.wheel_radius}')
+            print(f'delta_deg: {np.rad2deg(delta)}')
             self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = linear_velocity / self.wheel_radius)
             self.prev_time = self.get_clock().now()
     

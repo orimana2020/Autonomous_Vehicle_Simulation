@@ -55,7 +55,7 @@ install(PROGRAMS
   # scripts/teleop_joy_custom_ps4.py
   scripts/PID_wall_following.py
   scripts/follow_the_gap.py
-  scripts/inverse_twist.py
+  scripts/joy_to_cmdvel.py
   # scripts/path_planning.py
   scripts/Get_map_client.py
   scripts/PathPlanning_service.py
@@ -64,6 +64,8 @@ install(PROGRAMS
   scripts/Path_Tracking.py
   scripts/PurePursuit_python_interface.py
   scripts/utils.py
+  scripts/car_consts.py
+  scripts/circle_drive_steering_calibration.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
