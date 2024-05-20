@@ -1,24 +1,13 @@
 # Autonomous_RC
-installtion for simulation
-
 install ros2 humble - see documentation 
-
 sudo apt install ros-humble-xacro ros-humble-joint-state-publisher-gui ros-humble-joint-state-publisher
-
 sudo apt install ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-gazebo-ros2-control
-
 sudo apt install joystick jstest-gtk evtest 
-
 sudo apt install ros-humble-slam-toolbox
-
 sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup ros-humble-turtlebot3*
-
 sudo apt install ros-humble-twist-mux 
-
 sudo apt install ros-humble-twist-stamper
-
 git clone -b humble https://github.com/ros-controls/gazebo_ros2_control
-
 sudo apt-get install python3-pip
 pip install setuptools==58.2.0
 

@@ -65,6 +65,7 @@ install(PROGRAMS
   scripts/PurePursuit_python_interface.py
   scripts/utils.py
   scripts/car_consts.py
+  scripts/optitrack_map_to_odom_publisher.py
   scripts/circle_drive_steering_calibration.py
   DESTINATION lib/${PROJECT_NAME}
 )
