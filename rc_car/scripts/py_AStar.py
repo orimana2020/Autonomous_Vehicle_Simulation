@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import heapq
-from utils import Trajectory
+from py_Utils import Trajectory
 
 
 class A_Star(object):
@@ -24,8 +24,6 @@ class A_Star(object):
                     inflated_map[i_min:i_max, j_min:j_max] = 100
         return inflated_map
     
-     
-        
     def h(self, current, goal):
         return ((current[0] - goal[0])**2 + (current[1] - goal[1])**2)**0.5
     
@@ -132,8 +130,6 @@ class CSpace(object):
         return path_index
 
 
-
-
 def main():
     map_ = np.array(np.load('race4.npy'), dtype=int)
     env_rows, env_cols = map_.shape
@@ -149,37 +145,23 @@ def main():
         goal = converter.meter2pixel([3.37, 2.05])
         plt.scatter(start[0] , start[1], c='g')
         plt.scatter(goal[0] , goal[1], c='r')
-
         plt.show()
 
-    # map_ = np.array(np.load('maze_1.npy'), dtype=int)
-    # map_ = np.array(np.load('race4.npy'), dtype=int)
 
     astar = A_Star(map_, inflation=int(0.4/resolution))
-    # start=converter.meter2pixel([0.0,0.0])
-    # goal = converter.meter2pixel([6.22, -4.22])
-    # goal = converter.meter2pixel([3.37, 2.05])
-    # start = converter.meter2pixel([3.37, 2.05])
     start = converter.meter2pixel([-1.47, 0.13])
     goal=converter.meter2pixel([0.0, 0.0])
-    print(start)
-    print(goal)
     path_index = astar.find_path(start, goal)
     path_meter = np.array(converter.pathindex2pathmeter(path_index))
     trajectory = Trajectory(dl=0.5, path=path_index, TARGET_SPEED=1.0)
-    
-    np.save('path_race4_section3', path_meter)
-
-
+    # np.save('path_race4_section3', path_meter)
     plt.scatter(trajectory.cx, trajectory.cy, c= "r", s=10)
     plt.imshow(map_, origin="lower")
     plt.axis('equal')
     for x,y in path_index:
         plt.scatter(x,y)
-
     plt.scatter(start[0] , start[1])
     plt.scatter(goal[0] , goal[1])
-
     plt.show()
 
 

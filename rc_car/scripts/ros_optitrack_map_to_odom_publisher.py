@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import math
 from typing import NamedTuple
 import numpy as np
@@ -13,7 +12,7 @@ from rclpy.node import Node
 from std_msgs.msg import Header
 from rclpy.parameter import Parameter
 from control_msgs.msg import SteeringControllerStatus
-import car_consts
+import py_car_consts
 """
 subscribe to /diff_cont/controller_state [control_msgs/msg/SteeringControllerStatus], 
 calculate odometry, and publish to /odom and /tf

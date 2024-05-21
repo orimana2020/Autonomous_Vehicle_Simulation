@@ -11,13 +11,11 @@ sudo apt-get install python3-pip
 pip install setuptools==58.2.0
 
 
-
-
 # ------------ ROS BICYCLE SIMULATION ------------------
 
 TERMINAL 1 :
 source install/setup.bash
-ros2 launch rc_car launch_sim_bicycle.launch.py 
+ros2 launch rc_car launch_sim.launch.py world:=./src/rc_car/worlds/maze1.world
 
 TERMINAL 2 :
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/main.rviz --ros-args -p use_sim_time:=true
@@ -59,9 +57,8 @@ step 2: topic: /global_costmap, color scheme: cost_map
 
 ----------------------------- bicycle simulation with mapped environment
 
-ros2 launch rc_car launch_sim_bicycle.launch.py 
+ros2 launch rc_car launch_sim.launch.py 
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true
-
 ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
 # path planning
 ros2 run rc_car PathPlanning_service.py --ros-args -p use_sime_time:=true

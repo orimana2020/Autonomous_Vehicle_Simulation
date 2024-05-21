@@ -8,6 +8,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     
+
     package_name='rc_car' 
 
     rsp = IncludeLaunchDescription(
@@ -38,15 +39,14 @@ def generate_launch_description():
 
     # Set the path to the world file
     world_file_name = 'maze1.world'
-    # world_file_name = 'wall_following.world'
-    world_path = os.path.join(get_package_share_directory(package_name), 'worlds',world_file_name )
+    world_path = os.path.join(get_package_share_directory(package_name), 'worlds', world_file_name)
     gazebo_params_file = os.path.join(get_package_share_directory(package_name),'config','gazebo_params.yaml')
 
     # Include the Gazebo launch file, provided by the gazebo_ros package
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
-                    launch_arguments={'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file}.items()
+                    launch_arguments={ 'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file}.items()
              )
 
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
@@ -70,48 +70,18 @@ def generate_launch_description():
 
     odom_computation = Node( 
         package="rc_car",
-        executable="odom_publisher_bicycle.py",
+        executable="ros_odom_publisher_bicycle.py",
         name="compute_odom",
         parameters=[{'use_sim_time': True}]
     )
 
-    # default_rviz_config_path = os.path.join(get_package_share_directory(package_name), 'rviz_config/main.rviz')
-    # rviz_node = Node(
-    #     package='rviz2',
-    #     executable='rviz2',
-    #     name='rviz2',
-    #     output='screen',
-    #     arguments=['-d', LaunchConfiguration('rvizconfig')],
-    #     parameters=[{'use_sim_time': True}],
-    # )
-
-
-
-    # robot_localization_node = Node( #not working well
-    #    package='robot_localization',
-    #    executable='ekf_node',
-    #    name='ekf_filter_node',
-    #    output='screen',
-    #    parameters=[os.path.join(get_package_share_directory(package_name),'config','ekf.yaml'), {'use_sim_time': True}]
-    # )
-
-    # relay_topic_to_tf_node = Node(
-    #     package='topic_tools',
-    #     executable='relay',
-    #     arguments=['/diff_cont/tf_odometry', '/tf'],
-    #     output='screen',
-    # )
-
-
 
     # Launch them all!
     return LaunchDescription([
-        # DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
-        #                                     description='Absolute path to rviz config file'),
+        
         DeclareLaunchArgument(name='world',default_value=world_path,
                                             description='Full path to the world model file to load'),
-    
-    
+
         rsp,
         joystick,
         twist_mux,
@@ -121,7 +91,5 @@ def generate_launch_description():
         bicycle_drive_spawner,
         joint_broad_spawner,
         odom_computation,
-        # rviz_node,
-        # robot_localization_node,
         
     ])

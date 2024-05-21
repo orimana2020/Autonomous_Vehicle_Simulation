@@ -51,20 +51,20 @@ install(
 
 # Install Python executables
 install(PROGRAMS
-  scripts/odom_publisher_bicycle.py
-  scripts/PID_wall_following.py
-  scripts/follow_the_gap.py
-  scripts/joy_to_cmdvel.py
-  scripts/Get_map_client.py
-  scripts/PathPlanning_service.py
-  scripts/AStar_python_interface.py
-  scripts/PathPlanning_client.py
-  scripts/Path_Tracking.py
-  scripts/PurePursuit_python_interface.py
-  scripts/utils.py
-  scripts/car_consts.py
-  scripts/optitrack_map_to_odom_publisher.py
-  scripts/circle_drive_steering_calibration.py
+  scripts/ros_odom_publisher_bicycle.py
+  scripts/ros_PID_wall_following.py
+  scripts/ros_follow_the_gap.py
+  scripts/ros_joy_to_cmdvel.py
+  scripts/ros_Get_map_client.py
+  scripts/ros_PathPlanning_service.py
+  scripts/ros_steering_calibration.py
+  scripts/ros_optitrack_map_to_odom_publisher.py
+  scripts/ros_PathPlanning_client.py
+  scripts/ros_Path_Tracking.py
+  scripts/py_PurePursuit.py
+  scripts/py_Utils.py
+  scripts/py_car_consts.py
+  scripts/py_AStar.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

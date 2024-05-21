@@ -6,9 +6,6 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, Command
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
-# import xacro
-
-
 
 def generate_launch_description():
 
@@ -38,8 +35,6 @@ def generate_launch_description():
         name='robot_state_publisher',
         output='screen',
         parameters=[params],)
-          
-   
 
     # Launch!
     return LaunchDescription([

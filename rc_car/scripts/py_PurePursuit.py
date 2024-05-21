@@ -1,7 +1,7 @@
 import numpy as np
 import math
-from utils import Trajectory
-import car_consts
+from py_Utils import Trajectory
+import py_car_consts
 
 
 
@@ -93,19 +93,19 @@ class PurePersuit_Controller(object):
 
 def main():
     import matplotlib.pyplot as plt
-    from py_simulator import State, States, Simulator
+    from py_car_simulator import State, States, Simulator
     #  hyper-parameters
     k = 0.1  # look forward gain
     Lfc = 1.0  # [m] look-ahead distance
     Kp = 1.0  # speed proportional gain
     dt = 0.1  # [s] time tick
-    WB = car_consts.wheelbase 
+    WB = py_car_consts.wheelbase 
     target_speed = 1.0  # [m/s]
     T = 100.0  # max simulation time
-    MAX_STEER = car_consts.max_steering_angle_rad  # maximum steering angle [rad]
-    MAX_DSTEER = car_consts.max_dt_steering_angle  # maximum steering speed [rad/s]
-    MAX_SPEED = car_consts.max_linear_velocity  # maximum speed [m/s]
-    MIN_SPEED = car_consts.min_linear_velocity  # minimum speed [m/s]
+    MAX_STEER = py_car_consts.max_steering_angle_rad  # maximum steering angle [rad]
+    MAX_DSTEER = py_car_consts.max_dt_steering_angle  # maximum steering speed [rad/s]
+    MAX_SPEED = py_car_consts.max_linear_velocity  # maximum speed [m/s]
+    MIN_SPEED = py_car_consts.min_linear_velocity  # minimum speed [m/s]
     MAX_ACCEL = 1.0  # maximum accel [m/ss]
 
     """

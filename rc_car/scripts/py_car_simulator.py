@@ -122,19 +122,18 @@ class Simulator(object):
 
 
     def update_state(self, state, delta):
-        # input check
-        # if delta >= MAX_STEER:
-        #     delta = MAX_STEER
-        # elif delta <= -MAX_STEER:
-        #     delta = -MAX_STEER
+        if delta >= MAX_STEER:
+            delta = MAX_STEER
+        elif delta <= -MAX_STEER:
+            delta = -MAX_STEER
         state.x = state.x + state.v * math.cos(state.yaw) * self.dt
         state.y = state.y + state.v * math.sin(state.yaw) * self.dt
         state.yaw = state.yaw + state.v / WB * math.tan(delta) * self.dt
         # state.v = state.v + a * self.dt
-        # if state.v > MAX_SPEED:
-        #     state.v = MAX_SPEED
-        # elif state.v < MIN_SPEED:
-        #     state.v = MIN_SPEED
+        if state.v > MAX_SPEED:
+            state.v = MAX_SPEED
+        elif state.v < MIN_SPEED:
+            state.v = MIN_SPEED
         state.rear_x = state.x - ((WB / 2) * math.cos(state.yaw))
         state.rear_y = state.y - ((WB / 2) * math.sin(state.yaw))
         self.time +=  self.dt

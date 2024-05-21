@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import Tree, Ackermann_ARC, calc_configs_dist
-from AStar_python_interface import CSpace
+from py_Utils import Tree, calc_configs_dist, Trajectory
+from rc_car.scripts.py_AStar import CSpace
 plt.ion()
 
-class KINORRTSTAR(object):
+class RRTSTAR(object):
     def __init__(self, env_map, max_step_size = 0.5, max_itr=5000, stop_on_goal=False, p_bias=0.05, k=5, show_animation=False):
         self.max_step_size = max_step_size
         self.max_itr = max_itr
@@ -16,11 +16,6 @@ class KINORRTSTAR(object):
         self.env_yaw_range = 2*np.pi
         self.p_bias = p_bias
         self.show_animation = show_animation
-        self.ackerman_kino = Ackermann_ARC(wheelbase=0.34)
-        resolution=0.05000000074505806
-        origin_x=-4.73 
-        origin_y=-5.66
-        self.converter = CSpace(resolution, origin_x, origin_y, self.env_rows, self.env_cols)
         
 
     def find_path(self, start, goal):
@@ -35,60 +30,58 @@ class KINORRTSTAR(object):
             
             # sample
             x_random = self.sample(goal)
-            # x_random = self.converter.meter2pixel([1,0])
 
             # find nearest neighbor
             x_near_idx, x_near = self.tree.GetNearestVertex(x_random)
             
             # extend
             x_new = self.extend(x_random, x_near)
-            
             if path_found and np.array_equal(x_new, goal):
                 continue
             # add vertex and edge
-            if not self.is_in_collision(x_new) and self.local_planner(x_near, x_new):
+            if not self.is_in_collision(x_new) and self.local_planner(x_near, x_new, calc_configs_dist(x_near, x_new)):
                 x_new_idx = self.tree.AddVertex(x_new)
-                self.tree.AddEdge(x_near_idx, x_new_idx, self.arc_length)
-                self.tree.vertices[x_new_idx].set_waypoints(self.waypoints)
-                self.tree.vertices[x_new_idx].set_yaw(self.yaw)
+                self.tree.AddEdge(x_near_idx, x_new_idx)
 
                 # find k neaerst neihbors
                 self.k = int(np.log(len(self.tree.vertices)))
                 knn_ids = self.tree.GetKNN(x_new, self.k)
 
-                # check for better parrent
+                # check for collisions
+                collisions = []
                 for knn_id in knn_ids:
-                    if self.local_planner(self.tree.vertices[knn_id].conf, x_new) and \
-                    self.tree.vertices[knn_id].cost + self.arc_length < self.tree.vertices[x_new_idx].cost:
-                        self.tree.AddEdge(knn_id, x_new_idx, self.arc_length)
-                        self.tree.vertices[x_new_idx].set_waypoints(self.waypoints)
-                        self.tree.vertices[x_new_idx].set_yaw(self.yaw)
+                    if self.local_planner(x_new, self.tree.vertices[knn_id].conf, calc_configs_dist(x_new, self.tree.vertices[knn_id].conf)):
+                        collisions.append(True)
+                    else:
+                        collisions.append(False)
+
+                # check for better parrent
+                for idx, knn_id in enumerate(knn_ids):
+                    if collisions[idx] and \
+                    self.tree.vertices[knn_id].cost + calc_configs_dist(x_new, self.tree.vertices[knn_id].conf) < self.tree.vertices[x_new_idx].cost:
+                        self.tree.AddEdge(knn_id, x_new_idx)
 
                 # check for better child
-                for knn_id in knn_ids:
-                    if self.local_planner(x_new, self.tree.vertices[knn_id].conf) and \
-                    self.tree.vertices[x_new_idx].cost + self.arc_length < self.tree.vertices[knn_id].cost:
-                        self.tree.AddEdge(x_new_idx, knn_id, self.arc_length)
-                        self.tree.vertices[knn_id].set_waypoints(self.waypoints)
-                        self.tree.vertices[knn_id].set_yaw(self.yaw)
+                for idx, knn_id in enumerate(knn_ids):
+                    if collisions[idx] and \
+                    self.tree.vertices[x_new_idx].cost + calc_configs_dist(x_new, self.tree.vertices[knn_id].conf) < self.tree.vertices[knn_id].cost:
+                        self.tree.AddEdge(x_new_idx, knn_id)
                 
                 if self.show_animation:
                     self.draw_graph(x_new, start, goal)
            
                 if np.array_equal(x_new, goal):
-                    print(x_new)
-                    print(goal)
                     path_found = True
                     self.p_bias = 0.0
-                    self.path, self.path_idx ,self.path_cost = self.get_shortest_path(goal)
+                    path, path_cost = self.get_shortest_path(goal)
 
             if path_found and self.stop_on_goal:
-                return self.path, self.path_idx ,self.path_cost
+                return path , path_cost
             if path_found and not self.stop_on_goal:
-                self.path, self.path_idx ,self.current_cost = self.get_shortest_path(goal)
-                if self.current_cost < self.path_cost:
-                    self.path_cost = self.current_cost
-                    np.save('path'+str(path_idx), np.array(self.path))
+                path, current_cost = self.get_shortest_path(goal)
+                if current_cost < path_cost:
+                    path_cost = current_cost
+                    np.save('path'+str(path_idx), np.array(path))
                     path_idx += 1
                     print(f'itr: {itr} path_cost: {path_cost}')
             itr += 1
@@ -96,13 +89,12 @@ class KINORRTSTAR(object):
                 print(f'itr: {itr}')
         if path_found:
             return self.get_shortest_path(goal)
-        self.draw_tree()
         return None
     
     def sample(self, goal):
         if np.random.rand() < self.p_bias:
             return goal
-        return np.array([np.random.randint(self.env_cols), np.random.randint(self.env_rows), np.pi*2*np.random.rand()])#np.random.rand() * self.env_yaw_range])
+        return np.array([np.random.randint(self.env_cols), np.random.randint(self.env_rows), 0], dtype=int)#np.random.rand() * self.env_yaw_range])
     
     def extend(self, x_random, x_near):
         dist = np.linalg.norm(x_random - x_near, ord=2)
@@ -112,23 +104,17 @@ class KINORRTSTAR(object):
             x_random_new[0] = max(x_random_new[0], 0)
             x_random_new[1] = min(x_random_new[1], self.env_rows-1)
             x_random_new[1] = max(x_random_new[1], 0)
-            return np.array(x_random_new)
+            return np.array(x_random_new, dtype=int)
         return x_random
     
     def is_in_collision(self, x_new):
-        if self.map[int(x_new[1])][int(x_new[0])] == 0:
+        if self.map[x_new[1]][x_new[0]] == 0:
             return False
         return True
     
-    def local_planner(self, x_near, x_new):
-        if x_near[0] == x_new[0] or x_near[1] == x_new[1]:
-            return False
-        x_near_meter = self.converter.pixel2meter(x_near)
-        x_new_meter = self.converter.pixel2meter(x_new)
-        self.waypoints_meter, self.total_time, self.arc_length, self.yaw = self.ackerman_kino.get_arc(x_near_meter, x_new_meter, velocity=1.0)
-        self.waypoints = self.converter.pathmeter2pathindex(self.waypoints_meter)
-       
-        for config in self.waypoints:
+    def local_planner(self, config1, config2, dist):
+        configs = np.linspace(config1, config2, num=max(3,int(dist)) ,dtype=int)
+        for config in configs:
             if self.is_in_collision(config):
                 return False
         return True
@@ -139,13 +125,13 @@ class KINORRTSTAR(object):
         @param dest - the id of some vertex
         return the shortest path and the cost
         '''
-        path_idx = []
+        path = []
         goal_idx = self.tree.getIndexForState(goal)
-        path_idx.append(goal_idx)
-        while path_idx[-1] != 0:
-            path_idx.append(self.tree.edges[path_idx[-1]])
-        path = np.array([self.tree.vertices[idx].conf for idx in path_idx][::-1])
-        return path, path_idx[::-1] , self.compute_cost(path)
+        path.append(goal_idx)
+        while path[-1] != 0:
+            path.append(self.tree.edges[path[-1]])
+        path = np.array([self.tree.vertices[idx].conf for idx in path][::-1])
+        return path , self.compute_cost(path)
     
     def compute_cost(self, path):
         '''
@@ -173,21 +159,17 @@ class KINORRTSTAR(object):
         plt.imshow(self.map, origin="lower")
         plt.pause(0.01)
     
-    def draw_path(self, path, path_idx):
+    def draw_path(self, path, trajectory:Trajectory):
         plt.gcf().canvas.mpl_connect(
             'key_release_event',
             lambda event: [exit(0) if event.key == 'escape' else None])
-        for idx in path_idx[1:]:
-            arc_waypoints = self.tree.vertices[idx].waypoints
-            plt.scatter(arc_waypoints[:,0], arc_waypoints[:,1], c='r',s=10)
-        for i in range(len(path)):
-            plt.scatter( path[i][0], path[i][1], c='y')    
-        # for i in range(1, len(path)):
-        #     plt.scatter([path[i-1][0], path[i][0]], [path[i-1][1], path[i][1]], c='y')
+        for i in range(1, len(path)):
+            plt.plot([path[i-1][0], path[i][0]], [path[i-1][1], path[i][1]], c='m')
+        plt.plot(trajectory.cx, trajectory.cy, "-r", label="course")
         plt.xlim([0, self.env_cols])
         plt.ylim([0, self.env_rows])
         plt.imshow(self.map, origin="lower")
-        plt.pause(50)
+        plt.pause(5)
     
     def draw_paths(self, path_num):
         for path_id in range(1, path_num+1):
@@ -202,19 +184,6 @@ class KINORRTSTAR(object):
             plt.ylim([0, self.env_rows])
             plt.imshow(self.map, origin="lower")
             plt.pause(1)
-
-    def draw_tree(self):
-        plt.gcf().canvas.mpl_connect(
-            'key_release_event',
-            lambda event: [exit(0) if event.key == 'escape' else None])
-        for i in range(len(self.tree.vertices)):
-            conf = self.tree.vertices[i].conf
-            plt.scatter(conf[0], conf[1])
-        plt.xlim([0, self.env_cols])
-        plt.ylim([0, self.env_rows])
-        plt.imshow(self.map, origin="lower")
-        plt.pause(30)
-
 
 
 
@@ -246,18 +215,22 @@ def main():
     converter = CSpace(resolution, origin_x, origin_y,env_rows, env_cols )
 
     # map_ = np.array(np.load('maze_1.npy'), dtype=int)
-    
-    map_ = inflate(map_original, 0.2/resolution)
+    map_original = np.array(np.load('maze_test.npy'), dtype=int)
+    map_ = inflate(map_original, 0.4/resolution)
     start=converter.meter2pixel([0.0,0.0])
     goal = converter.meter2pixel([6.22, -4.22])
-    start = np.array([start[0], start[1], 0.0])
-    goal = np.array([goal[0], goal[1], 0.0])
+    start = np.array([start[0], start[1], 0.0], dtype= int)
+    goal = np.array([goal[0], goal[1], 0], dtype=int)
     print(start)
     print(goal)
-    rrt_planner = KINORRTSTAR(env_map=map_, max_step_size=20, max_itr=30000, stop_on_goal=False, p_bias=0.05, show_animation=False)
+    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=True, p_bias=0.05, show_animation=False)
     # rrt_planner.draw_paths(22)
-    path, path_idx,cost = rrt_planner.find_path(start, goal)
-    rrt_planner.draw_path(path, path_idx)
+    # path = np.load('path1.npy')
+    path, cost = rrt_planner.find_path(start, goal)
+    trajectory = Trajectory(dl=0.5, path = path, TARGET_SPEED=1.0)
+    
+    rrt_planner.draw_path(path, trajectory)
+    print(path)
 
 
 if __name__ == "__main__":
