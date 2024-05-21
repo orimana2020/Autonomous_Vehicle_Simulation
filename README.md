@@ -7,7 +7,6 @@ sudo apt install ros-humble-slam-toolbox
 sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup ros-humble-turtlebot3*
 sudo apt install ros-humble-twist-mux 
 sudo apt install ros-humble-twist-stamper
-git clone -b humble https://github.com/ros-controls/gazebo_ros2_control
 sudo apt-get install python3-pip
 pip install setuptools==58.2.0
 
@@ -71,4 +70,10 @@ ros2 run rc_car PathPlanning_client.py 0 0 6.22 -4.5  --ros-args -p use_sime_tim
 ros2 run rc_car Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true -p show_marker:=true -p path_name:=path_maze_meter_sim
 
 
+# localization usnig optitrack
+ros2 launch rc_car optitrack_map_server.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
+ros2 run rc_car optitrack_map_to_odom_publisher.py --ros-args use_sim_time:=true
 
+
+
+<!-- git clone -b humble https://github.com/ros-controls/gazebo_ros2_control -->

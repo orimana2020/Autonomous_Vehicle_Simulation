@@ -52,11 +52,9 @@ install(
 # Install Python executables
 install(PROGRAMS
   scripts/odom_publisher_bicycle.py
-  # scripts/teleop_joy_custom_ps4.py
   scripts/PID_wall_following.py
   scripts/follow_the_gap.py
   scripts/joy_to_cmdvel.py
-  # scripts/path_planning.py
   scripts/Get_map_client.py
   scripts/PathPlanning_service.py
   scripts/AStar_python_interface.py

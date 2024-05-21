@@ -92,14 +92,14 @@ class PathTracking(Node):
     
     def pp_callback(self, pose: TransformStamped):
         self.update_pose(pose)
-        print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
+        # print(f'x = {self.state.x:.2f}, y = {self.state.y:.2f}, yaw = {self.state.yaw:.2f} rear_x={self.state.rear_x:.2f} rear_y={self.state.rear_y:.2f}')
         delta_t = self.update_time()
         if self.target_ind < self.lastIndex :
             # self.state.v = self.pp.proportional_control_acceleration(self.TargetSpeed)
             delta, self.target_ind, self.tx, self.ty = self.pp.pure_pursuit_steer_control(self.state, self.trajectory, self.target_ind, delta_t)
             self.state.predelta = delta
             linear_velocity = self.get_linear_velocity(steering_angle=delta)
-            print(f'streering_angle : {np.rad2deg(delta)}, rear_wheel_speed: {linear_velocity / self.wheel_radius}')
+            # print(f'streering_angle : {np.rad2deg(delta)}, rear_wheel_speed: {linear_velocity / self.wheel_radius}')
             self.publish_control_cmd(steering_angle=delta, rear_wheel_angular_speed = linear_velocity / self.wheel_radius)
             self.prev_time = self.get_clock().now()
     

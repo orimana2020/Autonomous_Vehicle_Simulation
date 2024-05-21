@@ -10,7 +10,6 @@ from geometry_msgs.msg import Transform, Vector3, Quaternion, TransformStamped
 from nav_msgs.msg import Odometry
 from tf2_msgs.msg import TFMessage
 from rclpy.node import Node
-# from scipy.spatial.transform import Rotation
 from std_msgs.msg import Header
 from rclpy.parameter import Parameter
 from control_msgs.msg import SteeringControllerStatus
@@ -19,13 +18,6 @@ import car_consts
 subscribe to /diff_cont/controller_state [control_msgs/msg/SteeringControllerStatus], 
 calculate odometry, and publish to /odom and /tf
 """
-
-# class AckermannState(NamedTuple):
-#     position: np.array
-#     orientation: Rotation
-#     track_wheel_speed: float
-#     steering_angle: float
-#     time: rclpy.time.Time
 
 
 class MapOdomPublisher(Node):
@@ -52,11 +44,7 @@ class MapOdomPublisher(Node):
 
 
     def output(self):
-        """Build Odometry message from state"""
-        # quaternion = state.orientation.as_quat()
-        # linear_speed = self.wheel_radius * state.track_wheel_speed
-        # linear_velocity = self.linear_velocity(state.orientation, linear_speed)
-        # angular_speed = linear_speed / self.turn_radius(state.steering_angle)
+       
 
         tf_msg = TFMessage()
         tf_msg.transforms.append(TransformStamped())
@@ -116,8 +104,7 @@ class MapOdomPublisher(Node):
         tf_msg = self.output()
         # self.get_logger().debug(f'odometry: {output}')
         self.publisher_tf.publish(tf_msg)
-        # self.publisher_odom.publish(odom_msg)
-        # self.publisher.publish(output)
+        
 
 
 

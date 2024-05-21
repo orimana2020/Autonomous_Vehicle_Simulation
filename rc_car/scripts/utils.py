@@ -660,17 +660,5 @@ class Ackermann_ARC(object):
             yaw = yaw + np.pi*2
         return yaw
 
-# import matplotlib.pyplot as plt
-# # random_x, random_y = [-1.5299999523162846, -0.009999915808439397] # random point on map
-# random_x, random_y = [-1.5299999523162846, -0.1999915808439397] # random point on map
-# closest_x, closest_y, closest_yaw =[-0.029999929964542815, -0.009999915808439397, 0.0] # closest point in graph
-# fig = plt.figure()
-# ax = fig.add_subplot()
-# odom = Ackermann_ARC()
-# velocity = np.random.uniform(2.0)
-# waypoints, arc_time, arc_length = odom.get_arc([closest_x, closest_y,closest_yaw], [random_x, random_y] ,velocity=velocity  )
-# ax.scatter(waypoints[:,0], waypoints[:,1])
-# ax.scatter([closest_x, random_x], [closest_y, random_y],c='red')
-# ax.set_aspect('equal', 'box')
-# plt.show()
+
 
