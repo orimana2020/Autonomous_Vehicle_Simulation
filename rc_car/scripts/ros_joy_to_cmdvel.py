@@ -5,7 +5,7 @@ from sensor_msgs.msg import Joy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 import numpy as np
-import car_consts
+import py_car_consts
 
 
 class InverseTwist(Node):
@@ -18,11 +18,11 @@ class InverseTwist(Node):
         self.create_subscription(Joy, '/joy',self.feedback_callback_joy,10)
         self.publisher = self.create_publisher(Twist, '/cmd_vel_joy_inverse', 10)
 
-        self.wheel_radius = car_consts.wheel_radius
-        self.wheelbase = car_consts.wheelbase
+        self.wheel_radius = py_car_consts.wheel_radius
+        self.wheelbase = py_car_consts.wheelbase
         # if max_steering_angle changed the value in ROS_ARDUINO_BRIDGE must be changed too!
-        self.max_steering_angle = car_consts.max_steering_angle_rad #  = 35[deg] * np.pi / 180
-        max_linear_velocity = car_consts.max_linear_velocity
+        self.max_steering_angle = py_car_consts.max_steering_angle_rad #  = 35[deg] * np.pi / 180
+        max_linear_velocity = py_car_consts.max_linear_velocity
         self.max_radial_velocity_rear_wheel = max_linear_velocity / self.wheel_radius 
 
     def feedback_callback_joy(self, joy_msg):
