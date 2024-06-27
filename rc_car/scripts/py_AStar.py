@@ -90,12 +90,12 @@ class A_Star(object):
     
 
 class CSpace(object):
-    def __init__(self, resolution, origin_x, origin_y, env_rows, env_cols):
+    def __init__(self, resolution, origin_x, origin_y, map_shape):
         self.resolution = resolution
         self.origin_x = origin_x
         self.origin_y = origin_y
-        self.rows = env_rows
-        self.cols = env_cols
+        self.rows = map_shape[0]
+        self.cols = map_shape[1]
     
     def meter2pixel(self, config):
         if len(config) == 2:
@@ -106,7 +106,7 @@ class CSpace(object):
         x = min(int((config[0] -self.origin_x)/self.resolution), self.cols-1)
         y= max(int((config[1] -self.origin_y)/self.resolution), 0)
         y= min(int((config[1] -self.origin_y)/self.resolution), self.rows-1)
-        return [x,y, yaw]
+        return [x, y, yaw]
 
     def pixel2meter(self, config):
         if len(config) == 2:
