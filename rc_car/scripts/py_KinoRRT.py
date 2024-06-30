@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from py_Utils import Tree,  calc_configs_dist, CSpace
+from py_Utils import Tree,  CSpace
 plt.ion()
 
 class KINORRT(object):
@@ -137,7 +137,7 @@ class Odom(object):
         self.wheelbase = 0.35
         self.max_steering_angle = np.deg2rad(35)
         self.min_velocity, self.max_velocity = 0.5, 1
-        self.min_time, self.max_time = 1, 2
+        self.min_time, self.max_time = 0.5, 1
         self.converter = converter
     
     def sample_control_command(self):

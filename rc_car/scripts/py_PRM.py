@@ -1,17 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from py_Utils import Trajectory, CSpace
+from py_Utils import  CSpace
 import heapq
 import time
 plt.ion()
 
 class PRM(object):
-    def __init__(self, env_map,  max_itr=1000,  k=10, dist=10, show_animation=False):
+    def __init__(self, env_map,  max_itr=1000, dist=10, ):
         self.max_itr = max_itr
-        self.k = k
         self.map = env_map
         self.env_rows, self.env_cols = env_map.shape #rows~y, cols~x
-        self.show_animation = show_animation
         self.max_dist=dist
         self.build_prm_graph()
 
@@ -161,7 +159,7 @@ def main():
     converter = CSpace(resolution, origin_x=-4.73, origin_y=-5.66, map_shape=map_original.shape )
     map_original = np.array(np.load('maze_test.npy'), dtype=int)
     inflated_map = inflate(map_original, robot_raduis /resolution)
-    prm = PRM(env_map=inflated_map,  max_itr=1000, k=7,dist = 30, show_animation=False)
+    prm = PRM(env_map=inflated_map,  max_itr=1000, dist = 30)
     astar = A_Star(prm)
     start=converter.meter2pixel([0.0,0.0])
     goal = converter.meter2pixel([-2, 0])
