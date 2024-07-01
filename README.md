@@ -1,4 +1,4 @@
-# Autonomous_RC
+# Installtion
 install ros2 humble - see documentation 
 sudo apt install ros-humble-xacro ros-humble-joint-state-publisher-gui ros-humble-joint-state-publisher
 sudo apt install ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-gazebo-ros2-control
@@ -12,23 +12,27 @@ pip install setuptools==58.2.0
 
 
 ### bicycle simulation with mapped environment
+get map: 
+ros2 run rc_car ros_Get_map_client.py --ros-args -p map_name:=sim_map
+
+
 
 ros2 launch rc_car launch_sim.launch.py 
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true
 ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
 # path planning
-ros2 run rc_car PathPlanning_service.py --ros-args -p use_sime_time:=true
-ros2 run rc_car PathPlanning_client.py 0 0 6.22 -4.5  --ros-args -p use_sime_time:=true
+ros2 run rc_car ros_PathPlanning_service.py --ros-args -p map_name:=sim_map -p use_sime_time:=true
+ros2 run rc_car ros_PathPlanning_client.py 0 0 6.22 -4.5 path1 --ros-args -p use_sim_time:=true 
 # path tracking
-ros2 run rc_car Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true -p show_marker:=true -p path_name:=path_maze_meter_sim
+ros2 run rc_car ros_Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true -p show_marker:=true -p path_name:=path1
 
 
 # localization usnig optitrack
 ros2 launch rc_car optitrack_map_server.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
-ros2 run rc_car optitrack_map_to_odom_publisher.py --ros-args use_sim_time:=true
+ros2 run rc_car ros_optitrack_map_to_odom_publisher.py --ros-args use_sim_time:=true
 
 
-# ------------ ROS BICYCLE SIMULATION ------------------
+# ------------ ROS BICYCLE SIMULATION - Extended ------------------
 Terminal 1:
 source install/setup.bash
 ros2 launch rc_car launch_sim.launch.py world:=./src/rc_car/worlds/maze1.world

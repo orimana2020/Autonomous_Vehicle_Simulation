@@ -44,7 +44,7 @@ class PathTracking(Node):
         MAX_ACCEL = 1.0  # maximum accel [m/ss]
         self.wheel_radius = py_car_consts.wheel_radius
         self.WB = py_car_consts.wheelbase
-        self.path = np.load(path_name+'.npy')
+        self.path = np.load(path_name+'_meter.npy')
 
         if show_path_param:
             self.path_pulisher = self.create_publisher(Path, '/path', 1)

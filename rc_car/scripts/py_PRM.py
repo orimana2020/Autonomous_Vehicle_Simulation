@@ -18,7 +18,7 @@ class PRM(object):
         # sampling
         self.graph = {}
         for itr in range(self.max_itr):
-            randon_vertex = tuple(self.sample())
+            randon_vertex = tuple(self.sample()) 
             if not self.is_in_collision(randon_vertex):
                 self.graph[randon_vertex] = []
         
