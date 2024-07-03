@@ -614,3 +614,21 @@ class Ackermann_ARC(object):
 
 
 
+def inflate( map_, inflation):#, resolution, distance):
+        cells_as_obstacle = int(inflation) #int(distance/resolution)
+        map_[95:130, 70] = 100
+        original_map = map_.copy()
+        inflated_map = map_.copy()
+        # add berrier
+        rows, cols = inflated_map.shape
+        for j in range(cols):
+            for i in range(rows):
+                if original_map[i,j] != 0:
+                    i_min = max(0, i-cells_as_obstacle)
+                    i_max = min(rows, i+cells_as_obstacle)
+                    j_min = max(0, j-cells_as_obstacle)
+                    j_max = min(cols, j+cells_as_obstacle)
+                    inflated_map[i_min:i_max, j_min:j_max] = 100
+        return inflated_map  
+
+

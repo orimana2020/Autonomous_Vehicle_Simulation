@@ -15,3 +15,4 @@ car_width = 0.296
 min_linear_velocity = 0.7 # m/s
 max_linear_velocity = 1.5 # m/s
 wheel_radius = 0.056 # m
+car_radius  = 0.2

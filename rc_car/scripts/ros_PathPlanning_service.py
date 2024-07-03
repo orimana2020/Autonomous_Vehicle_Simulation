@@ -30,7 +30,7 @@ class PathPlanningService(Node):
         path_index = self.astar.find_path(start_index, goal_index)
         path_name_ =  path_name.data
         if path_index is not None:
-            np.save(path_name_+'_index', np.array(path_index))
+            # np.save(path_name_+'_index', np.array(path_index))
             path_meter = self.converter.pathindex2pathmeter(path_index)
             np.save(path_name_+'_meter', path_meter)
             path = []

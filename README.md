@@ -9,6 +9,10 @@ sudo apt install ros-humble-twist-mux
 sudo apt install ros-humble-twist-stamper
 sudo apt-get install python3-pip
 pip install setuptools==58.2.0
+sudo apt install python3-serial 
+sudo apt install libserial-dev
+sudo adduser $USER dialout
+sudo apt install net-tools
 
 
 ### bicycle simulation with mapped environment

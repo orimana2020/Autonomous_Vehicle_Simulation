@@ -171,10 +171,13 @@ class Odom(object):
 
 
 def main():
-    map_original = np.array(np.load('maze_test.npy'), dtype=int)
-    resolution=0.05000000074505806
+    map_dict = np.load('sim_map'+'.npy', allow_pickle=True)
+    resolution =  map_dict.item().get('map_resolution')
+    origin_x = map_dict.item().get('map_origin_x')
+    origin_y = map_dict.item().get('map_origin_y')
+    map_original = map_dict.item().get('map_data')
     inflated_map = inflate(map_original, 0.2/resolution)
-    converter = CSpace(resolution, origin_x=-4.73, origin_y=-5.66, map_shape=map_original.shape)
+    converter = CSpace(resolution, origin_x=origin_x, origin_y=origin_y, map_shape=map_original.shape)
     start=converter.meter2pixel([0.0,0.0])
     # goal = converter.meter2pixel([-2, 0])
     goal = converter.meter2pixel([6.22, -4.22])

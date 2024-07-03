@@ -153,7 +153,6 @@ class PathTracking(Node):
         self.marker.pose.position.y = self.ty
         self.marker_pulisher.publish(self.marker)
 
-        
 
 def main(args=None):
     rclpy.init(args=args)

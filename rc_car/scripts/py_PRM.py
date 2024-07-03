@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from py_Utils import  CSpace
+from py_Utils import  CSpace, inflate
 import heapq
 import time
 plt.ion()
 
 class PRM(object):
-    def __init__(self, env_map,  max_itr=1000, dist=10, ):
+    def __init__(self, env_map,  max_itr=1200, dist=20 ):
         self.max_itr = max_itr
-        self.map = env_map
+        self.map = inflate(env_map, 4)
         self.env_rows, self.env_cols = env_map.shape #rows~y, cols~x
         self.max_dist=dist
         self.build_prm_graph()
@@ -17,7 +17,7 @@ class PRM(object):
     def build_prm_graph(self):
         # sampling
         self.graph = {}
-        for itr in range(self.max_itr):
+        for _ in range(self.max_itr):
             randon_vertex = tuple(self.sample()) 
             if not self.is_in_collision(randon_vertex):
                 self.graph[randon_vertex] = []
@@ -132,43 +132,31 @@ class Plotter():
     
 
 
-def inflate(map_, inflation):#, resolution, distance):
-    cells_as_obstacle = int(inflation) #int(distance/resolution)
-    map_[95:130, 70] = 100
-    original_map = map_.copy()
-    inflated_map = map_.copy()
-    # add berrier
-    rows, cols = inflated_map.shape
-    for j in range(cols):
-        for i in range(rows):
-            if original_map[i,j] != 0:
-                i_min = max(0, i-cells_as_obstacle)
-                i_max = min(rows, i+cells_as_obstacle)
-                j_min = max(0, j-cells_as_obstacle)
-                j_max = min(cols, j+cells_as_obstacle)
-                inflated_map[i_min:i_max, j_min:j_max] = 100
-    return inflated_map       
+     
 
 
 
 def main():
     start_time = time.time()
-    map_original = np.array(np.load('maze_test.npy'), dtype=int)
-    resolution=0.05000000074505806
-    robot_raduis = 0.15
-    converter = CSpace(resolution, origin_x=-4.73, origin_y=-5.66, map_shape=map_original.shape )
-    map_original = np.array(np.load('maze_test.npy'), dtype=int)
-    inflated_map = inflate(map_original, robot_raduis /resolution)
-    prm = PRM(env_map=inflated_map,  max_itr=1000, dist = 30)
+    map_dict = np.load('sim_map'+'.npy', allow_pickle=True)
+    resolution =  map_dict.item().get('map_resolution')
+    origin_x = map_dict.item().get('map_origin_x')
+    origin_y = map_dict.item().get('map_origin_y')
+    map_original = map_dict.item().get('map_data')
+    converter = CSpace(resolution, origin_x=origin_x, origin_y=origin_y, map_shape=map_original.shape )
+    
+    prm = PRM(env_map=map_original,  max_itr=1500, dist = 30)
     astar = A_Star(prm)
     start=converter.meter2pixel([0.0,0.0])
     goal = converter.meter2pixel([-2, 0])
     print(start)
     print(goal)
-    path, cost = astar.find_path(start, goal)
+    path_index, cost = astar.find_path(start, goal)
+    if path_index is not None:
+        np.save('path2_meter', converter.pathindex2pathmeter(path_index))    
     print(f'path cost: {cost}, time: {time.time()-start_time}')
-    plotter = Plotter(inflated_map)
-    plotter.draw_graph(prm.graph, start, goal,path)
+    plotter = Plotter(prm.map)
+    plotter.draw_graph(prm.graph, start, goal,path_index)
 
 
 if __name__ == "__main__":
