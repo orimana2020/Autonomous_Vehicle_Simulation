@@ -1,10 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from py_Utils import Tree, calc_configs_dist, Trajectory, CSpace
-
 plt.ion()
 
-class RRT(object):
+class RRTSTAR(object):
     def __init__(self, env_map, max_step_size = 0.5, max_itr=5000, stop_on_goal=False, p_bias=0.05, k=5, show_animation=False):
         self.max_step_size = max_step_size
         self.max_itr = max_itr
@@ -94,7 +93,7 @@ class RRT(object):
     def sample(self, goal):
         if np.random.rand() < self.p_bias:
             return goal
-        return np.array([np.random.randint(self.env_cols), np.random.randint(self.env_rows), 0], dtype=int)# cols~x, rows~y
+        return np.array([np.random.randint(self.env_cols), np.random.randint(self.env_rows), 0], dtype=int)#np.random.rand() * self.env_yaw_range])
     
     def extend(self, x_random, x_near):
         dist = np.linalg.norm(x_random - x_near, ord=2)
@@ -108,7 +107,7 @@ class RRT(object):
         return x_random
     
     def is_in_collision(self, x_new):
-        if self.map[x_new[1]][x_new[0]] == 0: #map[y][x]
+        if self.map[x_new[1]][x_new[0]] == 0:
             return False
         return True
     
@@ -165,11 +164,11 @@ class RRT(object):
             lambda event: [exit(0) if event.key == 'escape' else None])
         for i in range(1, len(path)):
             plt.plot([path[i-1][0], path[i][0]], [path[i-1][1], path[i][1]], c='m')
-        # plt.plot(trajectory.cx, trajectory.cy, "-r", label="course")
+        plt.plot(trajectory.cx, trajectory.cy, "-r", label="course")
         plt.xlim([0, self.env_cols])
         plt.ylim([0, self.env_rows])
         plt.imshow(self.map, origin="lower")
-        plt.pause(10)
+        plt.pause(5)
     
     def draw_paths(self, path_num):
         for path_id in range(1, path_num+1):
@@ -207,23 +206,26 @@ def inflate(map_, inflation):#, resolution, distance):
 
 
 def main():
-    map_original = np.array(np.load('maze_test.npy'), dtype=int)
-    resolution=0.05000000074505806
-    robot_raduis = 0.4
-    converter = CSpace(resolution, origin_x=-4.73 , origin_y= -5.66,map_shape=map_original.shape )
-    map_original = np.array(np.load('maze_test.npy'), dtype=int)
-    map_ = inflate(map_original, robot_raduis /resolution)
+    map_dict = np.load('sim_map'+'.npy', allow_pickle=True)
+    resolution =  map_dict.item().get('map_resolution')
+    origin_x = map_dict.item().get('map_origin_x')
+    origin_y = map_dict.item().get('map_origin_y')
+    map_original = map_dict.item().get('map_data')
+    converter = CSpace(resolution, origin_x, origin_y, map_original.shape)
+    robot_radius = 0.4
+    map_ = inflate(map_original, robot_radius/resolution)
     start=converter.meter2pixel([0.0,0.0])
     goal = converter.meter2pixel([6.22, -4.22])
     start = np.array([start[0], start[1], 0.0], dtype= int)
     goal = np.array([goal[0], goal[1], 0], dtype=int)
     print(start)
     print(goal)
-    rrt_planner = RRT(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=True, p_bias=0.05, show_animation=False)
+    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=True, p_bias=0.05, show_animation=False)
     path, cost = rrt_planner.find_path(start, goal)
-    print(f'cost: {cost}')
     trajectory = Trajectory(dl=0.5, path = path, TARGET_SPEED=1.0)
+    
     rrt_planner.draw_path(path, trajectory)
+    print(path)
 
 
 if __name__ == "__main__":

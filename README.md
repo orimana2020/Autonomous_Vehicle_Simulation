@@ -25,8 +25,11 @@ ros2 launch rc_car launch_sim.launch.py
 ros2 run rviz2 rviz2 -d src/rc_car/rviz_config/localization.rviz --ros-args -p use_sim_time:=true
 ros2 launch rc_car localization.launch.py map:=./src/rc_car/maps/maze_1/maze1_map.yaml use_sim_time:=true
 # path planning
-ros2 run rc_car ros_PathPlanning_service.py --ros-args -p map_name:=sim_map -p use_sime_time:=true
-ros2 run rc_car ros_PathPlanning_client.py 0 0 6.22 -4.5 path1 --ros-args -p use_sim_time:=true 
+ros2 run rc_car ros_PathPlanning_service_astar.py --ros-args -p map_name:=sim_map -p use_sime_time:=true
+# or
+ros2 run rc_car ros_PathPlanning_service_prm.py --ros-args -p map_name:=sim_map -p use_sime_time:=true
+
+ros2 run rc_car ros_PathPlanning_client.py 0 0 6.22 -4.5 path4 --ros-args -p use_sim_time:=true 
 # path tracking
 ros2 run rc_car ros_Path_Tracking.py --ros-args -p use_sime_time:=true -p show_path:=true -p show_marker:=true -p path_name:=path1
 

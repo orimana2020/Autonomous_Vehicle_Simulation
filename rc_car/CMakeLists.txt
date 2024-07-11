@@ -51,12 +51,14 @@ install(
 
 # Install Python executables
 install(PROGRAMS
+  scripts/py_PRM.py
   scripts/ros_odom_publisher_bicycle.py
   scripts/ros_PID_wall_following.py
   scripts/ros_follow_the_gap.py
   scripts/ros_joy_to_cmdvel.py
   scripts/ros_Get_map_client.py
-  scripts/ros_PathPlanning_service.py
+  scripts/ros_PathPlanning_service_astar.py
+  scripts/ros_PathPlanning_service_prm.py
   scripts/ros_steering_calibration.py
   scripts/ros_optitrack_map_to_odom_publisher.py
   scripts/ros_PathPlanning_client.py

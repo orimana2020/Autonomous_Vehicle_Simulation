@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from py_Utils import  CSpace, inflate
 import heapq
 import time
-plt.ion()
+
 
 class PRM(object):
     def __init__(self, env_map,  max_itr=1200, dist=20 ):
