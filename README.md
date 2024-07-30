@@ -13,7 +13,7 @@ sudo apt install python3-serial
 sudo apt install libserial-dev
 sudo adduser $USER dialout
 sudo apt install net-tools
-
+sudo apt install ros-humble-gazebo-ros*
 
 ### bicycle simulation with mapped environment
 get map: 

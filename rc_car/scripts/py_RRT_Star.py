@@ -65,6 +65,7 @@ class RRTSTAR(object):
                     if collisions[idx] and \
                     self.tree.vertices[x_new_idx].cost + calc_configs_dist(x_new, self.tree.vertices[knn_id].conf) < self.tree.vertices[knn_id].cost:
                         self.tree.AddEdge(x_new_idx, knn_id)
+                        print('rew 2')
                 
                 if self.show_animation:
                     self.draw_graph(x_new, start, goal)
@@ -220,7 +221,7 @@ def main():
     goal = np.array([goal[0], goal[1], 0], dtype=int)
     print(start)
     print(goal)
-    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=True, p_bias=0.05, show_animation=False)
+    rrt_planner = RRTSTAR(env_map=map_, max_step_size=20, max_itr=15000, stop_on_goal=False, p_bias=0.05, show_animation=False)
     path, cost = rrt_planner.find_path(start, goal)
     trajectory = Trajectory(dl=0.5, path = path, TARGET_SPEED=1.0)
     

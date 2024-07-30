@@ -60,10 +60,7 @@ class PurePersuit_Controller(object):
         # To speed up nearest point search, doing it at only first time.
         if self.old_nearest_point_index is None:
             # search nearest point index
-            dx = [state.rear_x - icx for icx in self.cx]
-            dy = [state.rear_y - icy for icy in self.cy]
-            d = np.hypot(dx, dy)
-            ind = np.argmin(d)
+            ind = 0
             self.old_nearest_point_index = ind
         else:
             ind = self.old_nearest_point_index
