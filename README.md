@@ -133,6 +133,9 @@ ros2 launch rc_car optitrack_map_server.launch.py map:=./src/rc_car/maps/maze_1/
 ros2 run rc_car ros_optitrack_map_to_odom_publisher.py --ros-args use_sim_time:=true
 ```
 
+# Video
+
+
 
 
 
