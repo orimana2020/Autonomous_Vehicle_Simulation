@@ -134,7 +134,7 @@ ros2 run rc_car ros_optitrack_map_to_odom_publisher.py --ros-args use_sim_time:=
 ```
 
 # Video
-[![Watch the video](https://raw.githubusercontent.com/yourusername/yourrepository/main/assets/thumbnail.jpg)](https://raw.githubusercontent.com/yourusername/yourrepository/main/assets/video.mp4)
+[![Watch the video](https://github.com/orimana2020/Autonomous_Vehicle_Simulation/blob/main/Videos/simulation.png)](https://github.com/orimana2020/Autonomous_Vehicle_Simulation/blob/main/Videos/Autonomous%20car%20ROS%2BGazebo.mp4)
 
 
 
